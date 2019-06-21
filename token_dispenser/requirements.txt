@@ -1,0 +1,4 @@
+redis
+grpcio-tools
+grpcio
+mypy-protobuf
