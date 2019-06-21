@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+import "shared.proto";
+import "posts.proto";
+
+package foobar.post_importer;
+
+service PostImporter {
+    rpc create_post(posts.Post) returns (shared.Empty) {};
+}

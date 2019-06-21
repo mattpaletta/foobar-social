@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+import "profile.proto";
+import "shared.proto";
+
+package foobar.wall;
+
+message WallQuery {
+    string username = 1;
+    int64 starting_id = 2;
+    int64 limit = 3;
+}
+
+message WallPost {
+    string post_msg = 1;
+    string username = 2;
+    string profile_img = 3;
+    int64 datetime = 4;
+}
+
+service Wall {
+    rpc fetch(profile.User) returns (stream WallPost) {};
+    rpc put(WallPost) returns (shared.Empty) {};
+}

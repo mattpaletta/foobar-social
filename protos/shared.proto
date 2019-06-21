@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package foobar.shared;
+
+message Empty {}
+
+message Location {
+    float lat = 1;
+    float long = 2;
+}

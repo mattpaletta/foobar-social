@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+import "wall.proto";
+
+package foobar.profile;
+
+message User {
+    string username = 1;
+}
+
+message UserInfo {
+
+}
+
+service Profile {
+    rpc get_user(User) returns (UserInfo) {};
+    rpc get_wall(wall.WallQuery) returns (wall.WallPost) {};
+}

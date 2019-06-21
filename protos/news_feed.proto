@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+import "wall.proto";
+import "posts.proto";
+
+package foobar.news_feed;
+
+service NewsFeed {
+    rpc get_news_feed(wall.WallQuery) returns (stream posts.Post) {};
+}

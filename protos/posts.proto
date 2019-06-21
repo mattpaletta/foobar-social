@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+import "post_importer.proto";
+
+package foobar.posts;
+
+message Post {
+    int64 id = 1;
+    string username = 2;
+    string msg = 3;
+    int64 datetime = 4;
+    shared.Location loc = 5;
+}
+
+service Posts {
+    rpc get_post(Post) returns (stream Post) {};
+    rpc create_post(Post) returns (Post) {};
+}
