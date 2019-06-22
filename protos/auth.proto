@@ -13,5 +13,5 @@ message Token {
 }
 
 service Auths {
-    rpc check_post(Auth) returns (Token) {};
+    rpc check_auth(Auth) returns (Token) {};
 }
