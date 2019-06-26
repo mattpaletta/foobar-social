@@ -2,26 +2,26 @@ from concurrent import futures
 from time import sleep
 import grpc
 
-from auth.auth_pb2 import Token
-from auth.auth_pb2_grpc import add_AuthsServicer_to_server
-from auth.auth_pb2_grpc import AuthsServicer
-from auth.auth_pb2 import Auth
-from auth.token_pb2_grpc import TokenDispenserStub
-from auth.user_setting_pb2_grpc import UserSettingStub
+from auth_pb2 import Token
+from auth_pb2_grpc import add_AuthsServicer_to_server
+from auth_pb2_grpc import AuthsServicer
+from auth_pb2 import Auth
+from token_pb2_grpc import TokenDispenserStub
+from user_setting_pb2_grpc import UserSettingStub
 
 
 
 class AuthsService(AuthsServicer):
     
-    #def __init__(self):
+    def __init__(self):
 
     #TODO: Handle hosts through Docker or JSON
 
-    token_channel = grpc.insecure_channel('localhost:6969')
-    token_stub = TokenDispenserStub(token_channel)
+        self.token_channel = grpc.insecure_channel('localhost:6969')
+        self.token_stub = TokenDispenserStub(token_channel)
 
-    settings_channel = grpc.insecure_channel('localhost:1234')
-    settings_stub = UserSettingStub(settings_channel)
+        self.settings_channel = grpc.insecure_channel('localhost:1234')
+        self.settings_stub = UserSettingStub(settings_channel)
 
     def check_auth(self, request: Auth, context: grpc.RpcContext = None) -> Token:
 
