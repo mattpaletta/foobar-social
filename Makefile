@@ -32,6 +32,7 @@ token: protos/token.proto auth
 user_setting: protos/user_setting.proto
 	python3 -m grpc_tools.protoc -I./protos --python_out=./user_setting --grpc_python_out=./user_setting --mypy_out=./user_setting user_setting.proto
 	python3 -m grpc_tools.protoc -I./protos --python_out=./user_setting --grpc_python_out=./user_setting --mypy_out=./user_setting auth.proto
+	python3 -m grpc_tools.protoc -I./protos --python_out=./user_setting --grpc_python_out=./user_setting --mypy_out=./user_setting shared.proto
 
 wall: protos/wall.proto
 	python3 -m grpc_tools.protoc -I./protos --python_out=./wall --grpc_python_out=./wall --mypy_out=./wall wall.proto
