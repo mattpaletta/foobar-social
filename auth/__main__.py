@@ -13,7 +13,7 @@ from user_setting_pb2_grpc import UserSettingStub
 
 class AuthsService(AuthsServicer):
     
-    def __init__(self):
+    def __init__(self) -> None:
 
     #TODO: Handle hosts through Docker or JSON
 
