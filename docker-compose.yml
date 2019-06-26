@@ -1,0 +1,23 @@
+version: '3'
+services:
+  auth:
+    build:
+      context: auth
+    tty: true
+    links:
+      - token_dispenser
+  
+  token_dispenser:
+    build:
+      context: token_dispenser
+    tty: true
+    links:
+      - token_dispenser_redis
+  token_dispenser_redis:
+    image: redis:alpine
+
+  news_feed_data_access:
+    build: 
+      context: news_feed_data_access
+    tty: true
+
