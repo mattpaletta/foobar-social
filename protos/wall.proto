@@ -1,7 +1,7 @@
 syntax = "proto3";
 
-import "profile.proto";
 import "shared.proto";
+import "user.proto";
 
 package foobar.wall;
 
@@ -19,6 +19,6 @@ message WallPost {
 }
 
 service Wall {
-    rpc fetch(profile.User) returns (stream WallPost) {};
+    rpc fetch(user.User) returns (stream WallPost) {};
     rpc put(WallPost) returns (shared.Empty) {};
 }

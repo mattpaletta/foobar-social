@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package foobar.user;
+
+message User {
+    string username = 1;
+}
+
+message UserInfo {
+
+}
