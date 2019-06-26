@@ -9,14 +9,12 @@ friends: profile protos/friends.proto
 	python3 -m grpc_tools.protoc -I./protos --python_out=./friends/ --mypy_out=./friends profile.proto
 	python3 -m grpc_tools.protoc -I./protos --python_out=./friends/  --grpc_python_out=./friends/ --mypy_out=./friends friends.proto
 
-profile: protos/friends.proto
-	python3 -m grpc_tools.protoc -I./protos --python_out=./profile/  --grpc_python_out=./profile/ --mypy_out=./profile profile.proto
-
 news_feed: protos/news_feed.proto
 	python3 -m grpc_tools.protoc -I./protos --python_out=./news_feed/  --grpc_python_out=./news_feed/ --mypy_out=./news_feed news_feed.proto
 
 news_feed_data_access: protos/news_feed_data_access.proto
-	python3 -m grpc_tools.protoc -I./protos --python_out=./news_feed_data_access  --grpc_python_out=./news_feed_data_access --mypy_out=./news_feed_data_access news_feed_data_access.proto
+	protoc -I ./protos --swift_out=./news_feed_data_access/Sources/news_feed_data_access shared.proto user.proto wall.proto posts.proto
+	protoc -I ./protos --swift_out=./news_feed_data_access/Sources/news_feed_data_access --swiftgrpc_out=./news_feed_data_access/Sources/news_feed_data_access news_feed_data_access.proto
 
 post_importer: protos/post_importer.proto
 	python3 -m grpc_tools.protoc -I./protos --python_out=./post_importer  --grpc_python_out=./post_importer --mypy_out=./post_importer post_importer.proto
@@ -38,3 +36,5 @@ user_setting: protos/user_setting.proto
 
 wall: protos/wall.proto
 	python3 -m grpc_tools.protoc -I./protos --python_out=./wall --grpc_python_out=./wall --mypy_out=./wall wall.proto
+
+all: auth friends news_feed news_feed_data_access post_importer posts profile shared token user user_setting wall
