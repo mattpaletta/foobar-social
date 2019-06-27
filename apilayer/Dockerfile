@@ -1,6 +1,6 @@
 FROM maven:3.6-jdk-11-slim
 WORKDIR apilayer
-ADD src .
+ADD src src/
 ADD pom.xml pom.xml
-#RUN mvn compile && mvn package
-#ENTRYPOINT ["mvn exec:java -Dexec.mainClass='com.foobar.social.ApiServer' -Dexec.classpathScope=runtime"]
+RUN mvn clean package
+ENTRYPOINT ["java", "-cp", "target/apilayer-1.0-SNAPSHOT.jar", "com.foobar.social.ApiServer"]
