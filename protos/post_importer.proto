@@ -5,6 +5,6 @@ import "posts.proto";
 
 package foobar.post_importer;
 
-service PostImporter {
+service PostImporterService {
     rpc create_post(posts.Post) returns (shared.Empty) {};
 }

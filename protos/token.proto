@@ -4,7 +4,11 @@ import "auth.proto";
 
 package foobar.tokenizer;
 
-service TokenDispenser {
+option java_multiple_files = true;
+option java_package = "foobar.tokenizer";
+option java_outer_classname = "TokenDispenser";
+
+service TokenDispenserService {
     rpc create_token(auth.Auth) returns (auth.Token) {};
     rpc check_token(auth.Token) returns (auth.Token) {};
     rpc get_username(auth.Token) returns (auth.Token) {};

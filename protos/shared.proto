@@ -2,6 +2,10 @@ syntax = "proto3";
 
 package foobar.shared;
 
+option java_multiple_files = true;
+option java_package = "foobar.shared";
+option java_outer_classname = "Shared";
+
 message Empty {}
 
 message Location {

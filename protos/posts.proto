@@ -4,6 +4,10 @@ import "shared.proto";
 
 package foobar.posts;
 
+option java_multiple_files = true;
+option java_package = "foobar.posts";
+option java_outer_classname = "Posts";
+
 message Post {
     int64 id = 1;
     string username = 2;
@@ -12,7 +16,7 @@ message Post {
     shared.Location loc = 5;
 }
 
-service Posts {
+service PostService {
     rpc get_post(Post) returns (stream Post) {};
     rpc create_post(Post) returns (Post) {};
 }

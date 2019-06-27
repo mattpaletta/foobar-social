@@ -1,17 +1,22 @@
 syntax = "proto3";
 
 //import "shared.proto";
-import "profile.proto";
+//import "profile.proto";
+import "user.proto";
 
 package foobar.friends;
+
+option java_multiple_files = true;
+option java_package = "foobar.friends";
+option java_outer_classname = "Friends";
 
 message Friend {
     string username = 1;
     string friend_username = 2;
 }
 
-service Friends {
+service FriendsService {
 //    rpc is_friends(Friend) returns () {};
-    rpc get_friends(profile.User) returns (stream Friend) {};
-    rpc top_friends(profile.User) returns (stream Friend) {};
+    rpc get_friends(user.User) returns (stream Friend) {};
+    rpc top_friends(user.User) returns (stream Friend) {};
 }

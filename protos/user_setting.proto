@@ -9,7 +9,7 @@ message UserInfo {
 
 }
 
-service UserSetting {
+service UserSettingService {
     rpc get_password(auth.Auth) returns (auth.Auth) {};
     rpc get_info(auth.Auth) returns (UserInfo) {};
     rpc update_info(UserInfo) returns (shared.Empty) {};

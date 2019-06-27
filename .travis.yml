@@ -23,7 +23,7 @@ install:
 
 script:
   # Try and build all the containers in docker-compose
-  - if [ "$COMPOSE" == 1 ]; then docker-compose --build; fi
+  - if [ "$COMPOSE" == 1 ]; then docker-compose build; fi
   
   # Try and test each microservice
   - if [ "$AUTH" == 1 ]; then  mypy auth --strict; fi

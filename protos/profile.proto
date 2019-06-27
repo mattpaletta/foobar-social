@@ -2,10 +2,15 @@ syntax = "proto3";
 
 import "wall.proto";
 import "user.proto";
+import "posts.proto";
 
 package foobar.profile;
 
-service Profile {
+option java_multiple_files = true;
+option java_package = "foobar.profile";
+option java_outer_classname = "Profile";
+
+service ProfileService {
     rpc get_user(user.User) returns (user.UserInfo) {};
-    rpc get_wall(wall.WallQuery) returns (wall.WallPost) {};
+    rpc get_wall(wall.WallQuery) returns (stream posts.Post) {};
 }

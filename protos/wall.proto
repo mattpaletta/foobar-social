@@ -2,8 +2,13 @@ syntax = "proto3";
 
 import "shared.proto";
 import "user.proto";
+import "posts.proto";
 
 package foobar.wall;
+
+option java_multiple_files = true;
+option java_package = "foobar.wall";
+option java_outer_classname = "Wall";
 
 message WallQuery {
     string username = 1;
@@ -11,14 +16,7 @@ message WallQuery {
     int64 limit = 3;
 }
 
-message WallPost {
-    string post_msg = 1;
-    string username = 2;
-    string profile_img = 3;
-    int64 datetime = 4;
-}
-
-service Wall {
-    rpc fetch(user.User) returns (stream WallPost) {};
-    rpc put(WallPost) returns (shared.Empty) {};
+service WallService {
+    rpc fetch(user.User) returns (stream posts.Post) {};
+    rpc put(posts.Post) returns (shared.Empty) {};
 }

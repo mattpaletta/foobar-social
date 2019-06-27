@@ -5,6 +5,10 @@ import "posts.proto";
 
 package foobar.news_feed;
 
-service NewsFeed {
+option java_multiple_files = true;
+option java_package = "foobar.news_feed";
+option java_outer_classname = "NewsFeed";
+
+service NewsFeedService {
     rpc get_news_feed(wall.WallQuery) returns (stream posts.Post) {};
 }

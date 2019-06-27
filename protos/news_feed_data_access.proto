@@ -6,7 +6,7 @@ import "wall.proto";
 
 package foobar.news_feed_data_access;
 
-service NewsFeedDataAccess {
+service NewsFeedDataAccessService {
     rpc get_news_feed(wall.WallQuery) returns (stream posts.Post) {};
     rpc add_post(posts.Post) returns (shared.Empty) {};
 }

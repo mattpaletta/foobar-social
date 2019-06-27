@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+import "auth.proto";
+//import "token.proto";
+//import "profile.proto";
+import "posts.proto";
+import "news_feed.proto";
+import "wall.proto";
+
+package foobar.apilayer;
+
+option java_multiple_files = true;
+option java_package = "foobar.apilayer";
+option java_outer_classname = "ApiLayer";
+
+service ApiLayerService {
+    // Authentication
+    rpc login(auth.Auth) returns (auth.Token) {};
+
+    // Posts
+    rpc post(posts.Post) returns (posts.Post) {};
+
+    // Profile
+    rpc get_wall(wall.WallQuery) returns (stream posts.Post) {};
+
+    // Timeline
+    rpc get_news_feed(wall.WallQuery) returns (stream posts.Post) {};
+}

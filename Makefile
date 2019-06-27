@@ -1,9 +1,11 @@
+apilayer: protos/*.proto
+	cp -r protos/ apilayer/src/main/proto
+
 auth: protos/auth.proto
 	python3 -m grpc_tools.protoc -I./protos --python_out=./auth/  --grpc_python_out=./auth/ --mypy_out=./auth auth.proto
 	python3 -m grpc_tools.protoc -I./protos --python_out=./auth/  --grpc_python_out=./auth/ --mypy_out=./auth token.proto
 	python3 -m grpc_tools.protoc -I./protos --python_out=./auth/  --grpc_python_out=./auth/ --mypy_out=./auth user_setting.proto
 	python3 -m grpc_tools.protoc -I./protos --python_out=./auth/  --grpc_python_out=./auth/ --mypy_out=./auth shared.proto
-
 
 friends: profile protos/friends.proto
 	python3 -m grpc_tools.protoc -I./protos --python_out=./friends/ --mypy_out=./friends profile.proto

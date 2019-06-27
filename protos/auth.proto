@@ -2,6 +2,10 @@ syntax = "proto3";
 
 package foobar.auth;
 
+option java_multiple_files = true;
+option java_package = "foobar.auth";
+option java_outer_classname = "Authentication";
+
 message Auth {
     string username = 1;
     string password = 2;
@@ -12,6 +16,6 @@ message Token {
     string token = 2;
 }
 
-service Auths {
+service AuthService {
     rpc check_auth(Auth) returns (Token) {};
 }

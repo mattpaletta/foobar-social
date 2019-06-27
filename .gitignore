@@ -1,4 +1,8 @@
 # Created by .ignore support plugin (hsz.mobi)
+
+apilayer/target
+apilayer/src/main/proto
+
 ### Python template
 **/*_pb2.py
 **/*_pb2.pyi
