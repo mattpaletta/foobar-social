@@ -1,12 +1,32 @@
 version: '3'
 services:
+  tester:
+    build:
+      context: tester
+    tty: true
+    links:
+      - apilayer
+
+  apilayer:
+    build:
+      context: apilayer
+    tty: true
+    links:
+      - auth
+      - token_dispenser:token
+
   auth:
     build:
       context: auth
     tty: true
     links:
       - token_dispenser
-  
+
+  post_importer:
+    build:
+      context: post_importer
+    tty: true
+
   token_dispenser:
     build:
       context: token_dispenser

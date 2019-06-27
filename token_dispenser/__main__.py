@@ -3,17 +3,16 @@ from time import sleep
 import grpc
 import redis
 
-from token_dispenser.token_pb2 import Token
-from token_dispenser.token_pb2_grpc import add_TokenDispenserServicer_to_server
-from token_dispenser.token_pb2_grpc import TokenDispenserServicer
-from token_dispenser.auth_pb2 import Auth
+from token_pb2_grpc import add_TokenDispenserServiceServicer_to_server
+from token_pb2_grpc import TokenDispenserServiceServicer
+from auth_pb2 import Auth, Token
 
 host = "redis"
 port = 6379
 ONE_HOUR = 3600
 
 
-class TokenService(TokenDispenserServicer):
+class TokenService(TokenDispenserServiceServicer):
     def __init__(self):
         self._redis_conn = redis.StrictRedis(host = host, port = port, encoding = "utf-8")
 
@@ -32,7 +31,7 @@ class TokenService(TokenDispenserServicer):
 if __name__ == "__main__":
     token_port = 6969
     server = grpc.server(futures.ThreadPoolExecutor(max_workers = 4))
-    add_TokenDispenserServicer_to_server(servicer = TokenService, server = server)
+    add_TokenDispenserServiceServicer_to_server(servicer = TokenService(), server = server)
     server.add_insecure_port('[::]:{0}'.format(token_port))
     server.start()
     while True:

@@ -39,4 +39,7 @@ user_setting: protos/user_setting.proto
 wall: protos/wall.proto
 	python3 -m grpc_tools.protoc -I./protos --python_out=./wall --grpc_python_out=./wall --mypy_out=./wall wall.proto
 
-all: auth friends news_feed news_feed_data_access post_importer posts profile shared token user user_setting wall
+tester: protos/*.proto
+	find protos -name "*.proto" -exec sh -c "python3 -m grpc_tools.protoc -I./protos --python_out=./tester/  --grpc_python_out=./tester/ --mypy_out=./tester {}" \;
+
+all: auth friends news_feed news_feed_data_access post_importer posts profile shared token user user_setting wall tester

@@ -78,19 +78,19 @@ public class ApiServer {
         APILayerImpl() {
 
             this.authChannel = ManagedChannelBuilder
-                    .forAddress("auth", 123)
+                    .forAddress("auth", 2884)
                     .usePlaintext()
                     .build();
             this.authStub = AuthServiceGrpc.newBlockingStub(this.authChannel);
 
             this.tokenChannel = ManagedChannelBuilder
-                    .forAddress("token", 123)
+                    .forAddress("token", 6969)
                     .usePlaintext()
                     .build();
             this.tokenStub = TokenDispenserServiceGrpc.newBlockingStub(this.tokenChannel);
 
             this.postChannel = ManagedChannelBuilder
-                    .forAddress("token", 123)
+                    .forAddress("postImporter", 123)
                     .usePlaintext()
                     .build();
             this.postStub = PostImporterServiceGrpc.newBlockingStub(this.postChannel);
