@@ -1,5 +1,8 @@
 # foobar-social
 
+## Architecture
+![Architecture Diagram](docs/architecture_diagram.png?raw=true)
+
 ## Resources
 
 ### Protobuf + GRPC
