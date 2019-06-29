@@ -76,7 +76,6 @@ public class ApiServer {
         private final PostImporterServiceGrpc.PostImporterServiceBlockingStub postStub;
 
         APILayerImpl() {
-
             this.authChannel = ManagedChannelBuilder
                     .forAddress("auth", 2884)
                     .usePlaintext()

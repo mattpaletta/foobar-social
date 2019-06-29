@@ -14,6 +14,10 @@ services:
     links:
       - auth
       - token_dispenser:token
+    expose:
+      - 50051
+    ports:
+      - 50051
 
   auth:
     build:

@@ -19,7 +19,7 @@ before_install:
   - sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
 
 install:
-  - pip install mypy mypy-protobuf
+  - pip install mypy mypy-protobuf grpcio-tools grpcio
 
 script:
   - make all
