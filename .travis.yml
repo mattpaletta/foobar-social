@@ -22,6 +22,8 @@ install:
   - pip install mypy mypy-protobuf
 
 script:
+  - make all
+  
   # Try and build all the containers in docker-compose
   - if [ "$COMPOSE" == 1 ]; then docker-compose build; fi
   
