@@ -42,4 +42,4 @@ wall: protos/wall.proto
 tester: protos/*.proto
 	find protos -name "*.proto" -exec sh -c "python3 -m grpc_tools.protoc -I./protos --python_out=./tester/  --grpc_python_out=./tester/ --mypy_out=./tester {}" \;
 
-all: auth friends news_feed news_feed_data_access post_importer posts profile shared token user user_setting wall tester
+all: auth friends news_feed news_feed_data_access post_importer posts profile token user_setting wall tester

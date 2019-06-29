@@ -1,8 +1,8 @@
 import Dispatch
 import SwiftGRPC
 
-class NewsFeedDataAccess : Foobar_NewsFeedDataAccess_NewsFeedDataAccessProvider {
-    func get_news_feed(request: Foobar_Wall_WallQuery, session: Foobar_NewsFeedDataAccess_NewsFeedDataAccessget_news_feedSession) throws -> ServerStatus? {
+class NewsFeedDataAccess : Foobar_NewsFeedDataAccess_NewsFeedDataAccessServiceProvider {
+    func get_news_feed(request: Foobar_Wall_WallQuery, session: Foobar_NewsFeedDataAccess_NewsFeedDataAccessServiceget_news_feedSession) throws -> ServerStatus? {
         var p1 = Foobar_Posts_Post()
         p1.id = 1
         p1.username = "user1"
@@ -18,7 +18,7 @@ class NewsFeedDataAccess : Foobar_NewsFeedDataAccess_NewsFeedDataAccessProvider 
         return ServerStatus.ok
     }
     
-    func add_post(request: Foobar_Posts_Post, session: Foobar_NewsFeedDataAccess_NewsFeedDataAccessadd_postSession) throws -> Foobar_Shared_Empty {
+    func add_post(request: Foobar_Posts_Post, session: Foobar_NewsFeedDataAccess_NewsFeedDataAccessServiceadd_postSession) throws -> Foobar_Shared_Empty {
         print("Got Post: \(request.msg))")
         return Foobar_Shared_Empty()
     }
