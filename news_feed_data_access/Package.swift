@@ -17,6 +17,8 @@ let package = Package(
         .package(url: "https://github.com/grpc/grpc-swift", .upToNextMinor(from: "0.9.0")),
         .package(url: "https://github.com/apple/swift-protobuf.git", .upToNextMinor(from: "1.5.0")),
         .package(url: "https://github.com/kylef/Commander.git", from: "0.8.0"),
+        .package(url: "https://github.com/IBM-Swift/Kitura-redis.git", from: "2.1.1"),
+        .package(url: "https://github.com/IBM-Swift/Swift-Kuery-PostgreSQL.git", from: "2.1.1")
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -25,7 +27,10 @@ let package = Package(
             name: "news_feed_data_access",
             dependencies: ["SwiftGRPC",
                            "SwiftProtobuf",
-                           "Commander"]),
+                           "Commander",
+                           "SwiftRedis",
+                           "SwiftKueryPostgreSQL"
+            ]),
 //        .testTarget(
 //            name: "news_feed_data_accessTests",
 //            dependencies: ["news_feed_data_access"]),

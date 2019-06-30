@@ -1,5 +1,5 @@
 FROM swift:5.0.1 as builder
-RUN apt-get update -y && apt-get install -y libssl-dev libz-dev unzip
+RUN apt-get update -y && apt-get install -y libssl-dev libz-dev unzip libpq-dev
 WORKDIR /news_feed_data_access
 ADD . /news_feed_data_access
 RUN swift build --build-path build
