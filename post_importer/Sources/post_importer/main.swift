@@ -14,6 +14,10 @@ struct Connection {
     }
 }
 
+public enum PostImporterError : Error{
+    case NoMessage
+}
+
 class PostImporter : Foobar_PostImporter_PostImporterServiceProvider {
     
     private var redis: Redis
@@ -22,13 +26,23 @@ class PostImporter : Foobar_PostImporter_PostImporterServiceProvider {
     
     init(redis: Connection) {
         let env = ProcessInfo.processInfo.environment
-        self.IMPORT_QUEUE = env["IMPORT_QUEUE"]!
-        self.POST_INCREMENT_KEY = env["POST_INCREMENT_KEY"]!
+        guard let import_queue = env["IMPORT_QUEUE"] else {
+            print("Failed to get IMPORT_QUEUE from env")
+            exit(1)
+        }
+        guard let post_increment_key = env["POST_INCREMENT_KEY"] else {
+            print("Failed to get POST_INCREMENT_KEY from env")
+            exit(1)
+        }
+        
+        self.IMPORT_QUEUE = import_queue
+        self.POST_INCREMENT_KEY = post_increment_key
         
         self.redis = Redis()
         self.redis.connect(host: redis.host, port: redis.port) { (redisError: NSError?) in
             if let error = redisError {
                 print(error)
+                exit(1)
             }
         }
     }
@@ -47,10 +61,9 @@ class PostImporter : Foobar_PostImporter_PostImporterServiceProvider {
             request.loc.lat < 90 &&
             request.loc.long > -180 &&
             request.loc.long < 180
-        
+
         if !has_msg {
-            print("No message")
-            throw NSError(domain: "No Message", code: 1, userInfo: [:])
+            throw PostImporterError.NoMessage
         }
         
         if !has_username {

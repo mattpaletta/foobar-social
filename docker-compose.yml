@@ -7,6 +7,7 @@ services:
     links:
       - apilayer
       - auth
+      - post_importer:postImporter
 
   apilayer:
     build:
@@ -37,6 +38,9 @@ services:
       - post_importer_redis
     ports:
       - 9000
+    environment:
+      - IMPORT_QUEUE=post_import
+      - POST_INCREMENT_KEY=global_post_id
   post_importer_redis:
     image: redis:alpine
 
