@@ -18,8 +18,9 @@ news_feed_data_access: protos/news_feed_data_access.proto
 	protoc -I ./protos --swift_out=./news_feed_data_access/Sources/news_feed_data_access shared.proto user.proto wall.proto posts.proto
 	protoc -I ./protos --swift_out=./news_feed_data_access/Sources/news_feed_data_access --swiftgrpc_out=./news_feed_data_access/Sources/news_feed_data_access news_feed_data_access.proto
 
-post_importer: protos/post_importer.proto
-	python3 -m grpc_tools.protoc -I./protos --python_out=./post_importer  --grpc_python_out=./post_importer --mypy_out=./post_importer post_importer.proto
+post_importer: protos/post_importer.proto protos/posts.proto protos/shared.proto
+	protoc -I ./protos --swift_out=./post_importer/Sources/post_importer/protos posts.proto shared.proto
+	protoc -I ./protos --swift_out=./post_importer/Sources/post_importer/protos --swiftgrpc_out=./post_importer/Sources/post_importer/protos post_importer.proto
 
 posts: protos/posts.proto
 	python3 -m grpc_tools.protoc -I./protos --python_out=./posts  --grpc_python_out=./posts --mypy_out=./posts posts.proto
