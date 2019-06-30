@@ -30,6 +30,10 @@ services:
     build:
       context: post_importer
     tty: true
+    links:
+      - post_importer_redis
+  post_importer_redis:
+    image: redis:alpine
 
   token_dispenser:
     build:
@@ -44,4 +48,10 @@ services:
     build: 
       context: news_feed_data_access
     tty: true
-
+    links:
+      - news_feed_data_access_redis
+      - news_feed_data_access_postgres
+  news_feed_data_access_redis:
+    image: redis:alpine
+  news_feed_data_access_postgres:
+    image: postgres:alpine

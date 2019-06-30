@@ -50,12 +50,12 @@ class PostImporter : Foobar_PostImporter_PostImporterServiceProvider {
         
         if !has_msg {
             print("No message")
-            throw NSError()
+            throw NSError(domain: "No Message", code: 1, userInfo: [:])
         }
         
         if !has_username {
             print("No username")
-            throw NSError()
+            throw NSError(domain: "No Username", code: 1, userInfo: [:])
         }
         
         // TODO: Verify that username exists
@@ -92,7 +92,7 @@ class PostImporter : Foobar_PostImporter_PostImporterServiceProvider {
         }
         
         if did_error {
-            throw NSError()
+            throw NSError(domain: "Unknown Error", code: 1, userInfo: [:])
         }
         
         return Foobar_Shared_Empty()
