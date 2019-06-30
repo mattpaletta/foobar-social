@@ -1,46 +1,100 @@
-apilayer: protos/*.proto
+PROTO_DIR := ./protos
+
+PYDIR := MY_DIR
+PYPROTOC := python3 -m grpc_tools.protoc -I./$(PROTO_DIR) --python_out=./MY_DIR/  --grpc_python_out=./MY_DIR/ --mypy_out=./MY_DIR
+SWIFTPROTOC := protoc -I ./$(PROTO_DIR) --swiftgrpc_out=./MY_DIR/Sources/MY_DIR/protos --swift_out=./MY_DIR/Sources/MY_DIR/protos
+EXTRACT_IMPORTS := 's/^import\ "\([a-zA-Z]*.proto\)";/\1/p'
+EXTRACT_IMPORT_BASE := 's/^import\ "\([a-zA-Z]*\).proto";/\1/p'
+
+define get_imports_sub
+	$(call get_imports,$1.proto)
+endef
+
+define get_imports
+	$(patsubst %, $(PROTO_DIR)/%, $(shell sed -n $(EXTRACT_IMPORTS) protos/${1}.proto ))
+endef
+
+define get_outputs
+	${2}/${1}_pb2.py ${2}/${1}_pb2_grpc.py ${2}/${1}_pb2.pyi
+endef
+
+define generate_protos
+	@echo Generating Protos $1... \
+	$(shell $(subst $(PYDIR),${2},$(3)) $1.proto) \
+	$(foreach cur_file,$(call get_imports,$1), \
+		$(shell $(subst $(PYDIR),$(2),$(3)) $(cur_file)) \
+	)
+endef
+
+define generate_protos_py
+	$(call generate_protos,$1,$2,${PYPROTOC})
+endef
+
+define generate_protos_py_unary
+	$(call generate_protos_py,$1,$1)
+endef
+
+define generate_protos_swift
+	$(call generate_protos,$1,$2,${SWIFTPROTOC})
+endef
+
+auth := $(call get_outputs,auth,auth)
+$(auth):
+	$(call generate_protos_py_unary,auth)
+auth: $(auth)
+
+apilayer: $(PROTO_DIR)/*.proto
 	cp -r protos/ apilayer/src/main/proto
 
-auth: protos/auth.proto
-	python3 -m grpc_tools.protoc -I./protos --python_out=./auth/  --grpc_python_out=./auth/ --mypy_out=./auth auth.proto
-	python3 -m grpc_tools.protoc -I./protos --python_out=./auth/  --grpc_python_out=./auth/ --mypy_out=./auth token.proto
-	python3 -m grpc_tools.protoc -I./protos --python_out=./auth/  --grpc_python_out=./auth/ --mypy_out=./auth user_setting.proto
-	python3 -m grpc_tools.protoc -I./protos --python_out=./auth/  --grpc_python_out=./auth/ --mypy_out=./auth shared.proto
+friends := $(call get_outputs,friends,friends)
+$(friends):
+	$(call generate_protos_py_unary,friends)
+friends: $(friends)
 
-friends: profile protos/friends.proto
-	python3 -m grpc_tools.protoc -I./protos --python_out=./friends/ --mypy_out=./friends profile.proto
-	python3 -m grpc_tools.protoc -I./protos --python_out=./friends/  --grpc_python_out=./friends/ --mypy_out=./friends friends.proto
+news_feed := $(call get_outputs,news_feed,news_feed)
+$(news_feed):
+	$(call generate_protos_py_unary,news_feed)
+news_feed: $(news_feed)
 
-news_feed: protos/news_feed.proto
-	python3 -m grpc_tools.protoc -I./protos --python_out=./news_feed/  --grpc_python_out=./news_feed/ --mypy_out=./news_feed news_feed.proto
+news_feed_data_access := $(call get_outputs,news_feed_data_access,news_feed_data_access)
+$(news_feed_data_access):
+	$(call generate_protos_swift,news_feed_data_access,news_feed_data_access)
+news_feed_data_access: $(news_feed_data_access)
 
-news_feed_data_access: protos/news_feed_data_access.proto
-	protoc -I ./protos --swift_out=./news_feed_data_access/Sources/news_feed_data_access shared.proto user.proto wall.proto posts.proto
-	protoc -I ./protos --swift_out=./news_feed_data_access/Sources/news_feed_data_access --swiftgrpc_out=./news_feed_data_access/Sources/news_feed_data_access news_feed_data_access.proto
+post_importer := $(call get_outputs,post_importer,post_importer)
+$(post_importer):
+	$(call generate_protos_swift,post_importer,post_importer)
+post_importer: $(post_importer)
 
-post_importer: protos/post_importer.proto protos/posts.proto protos/shared.proto
-	protoc -I ./protos --swift_out=./post_importer/Sources/post_importer/protos posts.proto shared.proto
-	protoc -I ./protos --swift_out=./post_importer/Sources/post_importer/protos --swiftgrpc_out=./post_importer/Sources/post_importer/protos post_importer.proto
+posts := $(call get_outputs,posts,posts)
+$(posts):
+	$(call generate_protos_py_unary,posts)
+posts: $(posts)
 
-posts: protos/posts.proto
-	python3 -m grpc_tools.protoc -I./protos --python_out=./posts  --grpc_python_out=./posts --mypy_out=./posts posts.proto
+profile := $(call get_outputs,profile,profile)
+$(profile):
+	$(call generate_protos_py_unary,profile)
+profile: $(profile)
 
-profile: protos/profile.proto
-	python3 -m grpc_tools.protoc -I./protos --python_out=./profile  --grpc_python_out=./profile --mypy_out=./profile profile.proto
+token := $(call get_outputs,token,token_dispenser)
+$(token):
+	$(call generate_protos_py,token,token_dispenser)
+token: $(token)
 
-token: protos/token.proto auth
-	python3 -m grpc_tools.protoc -I./protos --python_out=./token_dispenser/ --mypy_out=./token_dispenser auth.proto
-	python3 -m grpc_tools.protoc -I./protos --python_out=./token_dispenser/ --grpc_python_out=./token_dispenser/ --mypy_out=./token_dispenser token.proto
+user_setting := $(call get_outputs,user_setting,user_setting)
+$(user_setting):
+	$(call generate_protos_py_unary,user_setting)
+user_setting: $(user_setting)
 
-user_setting: protos/user_setting.proto
-	python3 -m grpc_tools.protoc -I./protos --python_out=./user_setting --grpc_python_out=./user_setting --mypy_out=./user_setting user_setting.proto
-	python3 -m grpc_tools.protoc -I./protos --python_out=./user_setting --grpc_python_out=./user_setting --mypy_out=./user_setting auth.proto
-	python3 -m grpc_tools.protoc -I./protos --python_out=./user_setting --grpc_python_out=./user_setting --mypy_out=./user_setting shared.proto
-
-wall: protos/wall.proto
-	python3 -m grpc_tools.protoc -I./protos --python_out=./wall --grpc_python_out=./wall --mypy_out=./wall wall.proto
+wall := $(call get_outputs,wall,wall)
+$(wall):
+	$(call generate_protos_py_unary,wall)
+wall: $(wall)
 
 tester: protos/*.proto
 	find protos -name "*.proto" -exec sh -c "python3 -m grpc_tools.protoc -I./protos --python_out=./tester/  --grpc_python_out=./tester/ --mypy_out=./tester {}" \;
+
+clean:
+	rm -rf **/*_pb2.pyi **/*_pb2.py **/*_pb2_grpc.py **/*grpc.swift **/*pb.swift
 
 all: auth friends news_feed news_feed_data_access post_importer posts profile token user_setting wall tester
