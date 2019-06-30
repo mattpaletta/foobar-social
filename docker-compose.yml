@@ -6,6 +6,7 @@ services:
     tty: true
     links:
       - apilayer
+      - auth
 
   apilayer:
     build:
@@ -14,9 +15,8 @@ services:
     links:
       - auth
       - token_dispenser:token
+      - post_importer:postImporter
     expose:
-      - 50051
-    ports:
       - 50051
 
   auth:
@@ -25,6 +25,9 @@ services:
     tty: true
     links:
       - token_dispenser
+      - user_settings
+    expose:
+      - 2884
 
   post_importer:
     build:
@@ -32,6 +35,8 @@ services:
     tty: true
     links:
       - post_importer_redis
+    ports:
+      - 9000
   post_importer_redis:
     image: redis:alpine
 
@@ -54,4 +59,14 @@ services:
   news_feed_data_access_redis:
     image: redis:alpine
   news_feed_data_access_postgres:
+    image: postgres:alpine
+
+  user_settings:
+    build:
+      context: user_setting
+    tty: true
+    links:
+      - user_settings_postgres
+
+  user_settings_postgres:
     image: postgres:alpine

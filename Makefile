@@ -41,6 +41,8 @@ endef
 auth := $(call get_outputs,auth,auth)
 $(auth):
 	$(call generate_protos_py_unary,auth)
+	$(call generate_protos_py,token,auth)
+	$(call generate_protos_py,user_setting,auth)
 auth: $(auth)
 
 apilayer: $(PROTO_DIR)/*.proto

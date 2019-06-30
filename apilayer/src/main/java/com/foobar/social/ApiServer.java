@@ -89,7 +89,7 @@ public class ApiServer {
             this.tokenStub = TokenDispenserServiceGrpc.newBlockingStub(this.tokenChannel);
 
             this.postChannel = ManagedChannelBuilder
-                    .forAddress("postImporter", 123)
+                    .forAddress("postImporter", 9000)
                     .usePlaintext()
                     .build();
             this.postStub = PostImporterServiceGrpc.newBlockingStub(this.postChannel);

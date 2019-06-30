@@ -7,7 +7,7 @@ from token_pb2_grpc import add_TokenDispenserServiceServicer_to_server
 from token_pb2_grpc import TokenDispenserServiceServicer
 from auth_pb2 import Auth, Token
 
-host = "redis"
+host = "token_dispenser_redis"
 port = 6379
 ONE_HOUR = 3600
 
