@@ -55,8 +55,13 @@ friends: $(friends)
 
 news_feed := $(call get_outputs,news_feed,news_feed)
 $(news_feed):
-	$(call generate_protos_py_unary,news_feed)
+	$(call generate_protos_swift,news_feed,news_feed)
 news_feed: $(news_feed)
+
+news_feed_merge: friends profile news_feed_data_access
+	$(call generate_protos_swift,friends,news_feed_merge)
+	$(call generate_protos_swift,profile,news_feed_merge)
+	$(call generate_protos_swift,news_feed_data_access,news_feed_merge)
 
 news_feed_data_access := $(call get_outputs,news_feed_data_access,news_feed_data_access)
 $(news_feed_data_access):
