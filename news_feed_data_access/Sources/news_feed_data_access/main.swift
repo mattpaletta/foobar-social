@@ -16,8 +16,11 @@ struct Connection {
 }
 
 class NewsFeedDataAccess : Foobar_NewsFeedDataAccess_NewsFeedDataAccessServiceProvider {
+    
     private var redis: Redis
     private var postgres: PostgreSQLConnection
+    
+    private let MAX_USER_TIMELINE_CACHE_SIZE = 100
     
     init(redis: Connection, psql: Connection) {
         self.redis = Redis()
@@ -84,8 +87,33 @@ class NewsFeedDataAccess : Foobar_NewsFeedDataAccess_NewsFeedDataAccessServicePr
         return ServerStatus.ok
     }
     
-    func add_post(request: Foobar_Posts_Post, session: Foobar_NewsFeedDataAccess_NewsFeedDataAccessServiceadd_postSession) throws -> Foobar_Shared_Empty {
-        print("Got Post: \(request.msg))")
+    func add_post(request: Foobar_NewsFeedDataAccess_NewsFeedPost, session: Foobar_NewsFeedDataAccess_NewsFeedDataAccessServiceadd_postSession) throws -> Foobar_Shared_Empty {
+        
+        let user = request.user
+        let post_id = request.post.id
+        let jsonPost = try request.jsonString()
+        
+        let query = "INSERT INTO news_feed_data_access.nf_posts (post_id, username) VALUES (\(post_id), '\(user)');"
+        self.postgres.execute(query) { (result) in
+            if result.success {
+                // Cache result in Redis
+                // Store the key as the username, tuples are sorted by post_id
+                // If the size exceeds MAX_USER_TIMELINE_CACHE_SIZE, trim the list to match
+                self.redis.zadd(user, tuples: (Int(post_id), jsonPost)) { (num_elements, error) in
+                    if error != nil {
+                        print(error!.localizedDescription)
+                    } else if (num_elements ?? 0) > self.MAX_USER_TIMELINE_CACHE_SIZE {
+                        self.redis.zremrangebyrank(user, start: 0, stop: -self.MAX_USER_TIMELINE_CACHE_SIZE - 1) { (new_size, error) in
+                            if error != nil {
+                                print(error!.localizedDescription)
+                            }
+                        }
+                    }
+                }
+            } else {
+                print(result.asError!.localizedDescription)
+            }
+        }
         return Foobar_Shared_Empty()
     }
 }
