@@ -72,16 +72,63 @@ class NewsFeedDataAccess : Foobar_NewsFeedDataAccess_NewsFeedDataAccessServicePr
     }
     
     func get_news_feed(request: Foobar_Wall_WallQuery, session: Foobar_NewsFeedDataAccess_NewsFeedDataAccessServiceget_news_feedSession) throws -> ServerStatus? {
-        var p1 = Foobar_Posts_Post()
-        p1.id = 1
-        p1.username = "user1"
+        let limit = request.limit
         
-        var p2 = Foobar_Posts_Post()
-        p2.id = 2
-        p2.username = "user2"
+        // This is the last post id we have
+        let startingID = request.startingID
+        let user = request.username
         
-        try! session.send(p1)
-        try! session.send(p2)
+        var num_returned: Int64 = 0
+        
+        // Check if its in redis
+        // The post_id is used as the score in the sorted set, so we can iterate upwards from there.
+        self.redis.zrangebyscore(user, min: String(describing: startingID), max: "inf") { (redis_posts, error) in
+            if error != nil {
+                print(error!.localizedDescription)
+            } else {
+                guard let posts = redis_posts else { return }
+                for post in posts {
+                    if num_returned <= limit {
+                        do {
+                            let newPost = try Foobar_Posts_Post(jsonString: post!.asString)
+                            try session.send(newPost)
+                            num_returned += 1
+                        } catch {
+                            print(error)
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Start with grabbing from Postgres
+        if num_returned <= limit {
+            let query = "SELECT post_id, username FROM news_feed_data_access.nf_posts WHERE user = \(user) AND post_id > \(startingID) LIMIT \(limit - num_returned);"
+            self.postgres.execute(query) { (result) in
+                if result.asError != nil {
+                    print(result.asError!.localizedDescription)
+                } else {
+                    result.asRows(onCompletion: { (resultSet) in
+                        if resultSet.1 != nil {
+                            print(resultSet.1!.localizedDescription)
+                        } else {
+                            guard let rows = resultSet.0 else { return }
+                            for row in rows {
+                                guard let post_id = row["post_id"] as? Int64, let username = row["username"] as? String else { continue }
+                                
+                                var newPost = Foobar_Posts_Post()
+                                newPost.id = post_id
+                                newPost.username = username
+                                do {
+                                    try session.send(newPost)
+                                } catch {}
+                            }
+                        }
+                    })
+                }
+            }
+        }
+        
         session.waitForSendOperationsToFinish()
 
         return ServerStatus.ok

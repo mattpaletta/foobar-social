@@ -66,6 +66,8 @@ news_feed_merge: friends profile news_feed_data_access
 news_feed_data_access := $(call get_outputs,news_feed_data_access,news_feed_data_access)
 $(news_feed_data_access):
 	$(call generate_protos_swift,news_feed_data_access,news_feed_data_access)
+	$(call generate_protos_swift,user,news_feed_data_access)
+
 news_feed_data_access: $(news_feed_data_access)
 
 post_importer := $(call get_outputs,post_importer,post_importer)
