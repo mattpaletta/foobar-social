@@ -46,7 +46,7 @@ class FriendsService(FriendsServiceServicer):
             postgres_pool.putconn(postgres_pool_conn)
 
             for row in rows:
-                yield Friend(username = request_username, password = row.friend)
+                yield Friend(username = request_username, friend_username = row.friend)
 
     def top_friends(self, request: User, context: grpc.RpcContext = None) -> Iterator[Friend]:
         
@@ -71,7 +71,7 @@ class FriendsService(FriendsServiceServicer):
             postgres_pool.putconn(postgres_pool_conn)
 
             for row in rows:
-                yield Friend(username = request_username, password = retrieved_pass)
+                yield Friend(username = request_username, friend_username = retrieved_pass)
             
 
 
@@ -84,11 +84,11 @@ class FriendsService(FriendsServiceServicer):
 
 
 if __name__ == "__main__":
-    friends_port = 2884
+    friends_port = 2885
     server = grpc.server(futures.ThreadPoolExecutor(max_workers = 4))
     add_FriendsServiceServicer_to_server(servicer = FriendsService(), server = server)
     server.add_insecure_port('[::]:{0}'.format(friends_port))
-    print("Starting Auth Server")
+    print("Starting Friends Server")
     server.start()
     while True:
         sleep(1000)

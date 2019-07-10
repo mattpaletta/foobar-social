@@ -78,11 +78,11 @@ class PostsService(PostsServiceServicer):
 
 
 if __name__ == "__main__":
-    posts_port = 2884
+    posts_port = 2885
     server = grpc.server(futures.ThreadPoolExecutor(max_workers = 4))
     add_PostsServiceServicer_to_server(servicer = PostsService(), server = server)
     server.add_insecure_port('[::]:{0}'.format(posts_port))
-    print("Starting Auth Server")
+    print("Starting Posts Server")
     server.start()
     while True:
         sleep(1000)

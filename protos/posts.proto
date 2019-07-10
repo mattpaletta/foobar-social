@@ -23,6 +23,6 @@ message PostQuery {
 }
 
 service PostService {
-    rpc get_post(Post) returns (stream Post) {};
+    rpc get_post(PostQuery) returns (stream Post) {};
     rpc create_post(Post) returns (Post) {};
 }
