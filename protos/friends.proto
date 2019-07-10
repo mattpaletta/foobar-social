@@ -11,11 +11,18 @@ option java_package = "foobar.friends";
 option java_outer_classname = "Friends";
 
 message Friend {
+    // TODO: username, userid
     string username = 1;
     string friend_username = 2;
 }
 
+message FriendRelation {
+    user.User me = 1;
+    user.User other = 2;
+}
+
 service FriendsService {
+    // TODO: add/remove friend
 //    rpc is_friends(Friend) returns () {};
     rpc get_friends(user.User) returns (stream Friend) {};
     rpc top_friends(user.User) returns (stream Friend) {};
