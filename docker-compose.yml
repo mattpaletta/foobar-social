@@ -20,6 +20,49 @@ services:
     expose:
       - 50051
 
+  friends:
+    build:
+      context: friends
+    tty: true
+    links:
+      - friends_postgres:friendsDB
+    ports:
+      - 2884
+  friends_postgres:
+    image: postgres:alpine
+
+  news_feed:
+    build:
+      context: news_feed
+    tty: true
+    ports:
+      - 2884
+
+  posts:
+    build:
+      context: posts
+    tty: true
+    links:
+      - posts_postgres:postsDB
+      - posts_redis:postsCache
+    ports:
+      - 2885
+  posts_postgres:
+    image: postgres:alpine
+  posts_redis:
+    image: redis:alpine
+
+  profile:
+    build:
+      context: profile
+    tty: true
+    links:
+      - profile_redis:profileCache
+    ports:
+      - 2886
+  profile_redis:
+    image: redis:alpine
+
   auth:
     build:
       context: auth
@@ -27,7 +70,7 @@ services:
     links:
       - token_dispenser
       - user_settings
-    expose:
+    ports:
       - 2884
 
   post_importer:
@@ -53,6 +96,14 @@ services:
   token_dispenser_redis:
     image: redis:alpine
 
+  news_feed_merge:
+    build:
+      context: news_feed_data_access
+    tty: true
+    links:
+      - news_feed_data_access:newsFeedDataAccess
+      - friends
+
   news_feed_data_access:
     build: 
       context: news_feed_data_access
@@ -71,6 +122,5 @@ services:
     tty: true
     links:
       - user_settings_postgres
-
   user_settings_postgres:
     image: postgres:alpine
