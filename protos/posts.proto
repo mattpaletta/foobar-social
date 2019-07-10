@@ -16,6 +16,12 @@ message Post {
     shared.Location loc = 5;
 }
 
+message PostQuery {
+    string username = 1;
+    int64 starting_id = 2;
+    int64 limit = 3;
+}
+
 service PostService {
     rpc get_post(Post) returns (stream Post) {};
     rpc create_post(Post) returns (Post) {};

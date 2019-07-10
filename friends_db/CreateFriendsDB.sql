@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS posts_db (
+  friends_id SERIAL PRIMARY KEY,
+  username VARCHAR(50) NOT NULL,
+  friend VARCHAR(50) NOT NULL
+);
