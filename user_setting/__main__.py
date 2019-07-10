@@ -3,17 +3,15 @@ from time import sleep
 import grpc
 import re
 
-from user_setting_pb2_grpc import add_UserSettingServicer_to_server
-from user_setting_pb2_grpc import UserSettingServicer
+from user_setting_pb2_grpc import add_UserSettingServiceServicer_to_server
+from user_setting_pb2_grpc import UserSettingServiceServicer
 from auth_pb2 import Auth
 
 import psycopg2
 from psycopg2 import pool
 
 
-
-
-class UserSettingService(UserSettingServicer):
+class UserSettingService(UserSettingServiceServicer):
     
     def __init__(self):
     
@@ -61,13 +59,9 @@ class UserSettingService(UserSettingServicer):
             
             retrieved_pass = rows[0]
             
-            postgres_pool.putconn(postgres_pool_conn)
+            self.postgres_pool.putconn(postgres_pool_conn)
 
             return Auth(username = request_username, password = retrieved_pass)
-
-
-
-            
         else:
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details('Failure to connect to DB pool.')
@@ -80,16 +74,10 @@ class UserSettingService(UserSettingServicer):
     #         postgres_pool.closeall
     #     print("PostgreSQL connection pool is closed")
 
-
-        
-
-        
-
-
 if __name__ == "__main__":
     auth_port = 2884
     server = grpc.server(futures.ThreadPoolExecutor(max_workers = 4))
-    add_UserSettingServicer_to_server(servicer = UserSettingService, server = server)
+    add_UserSettingServiceServicer_to_server(servicer = UserSettingService, server = server)
     server.add_insecure_port('[::]:{0}'.format(auth_port))
     server.start()
     while True:
