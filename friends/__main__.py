@@ -43,7 +43,7 @@ class FriendsService(FriendsServiceServicer):
             ps_cursor.execute("SELECT friend FROM friends_db WHERE username = '{0}';".format(request_username))
             ps_cursor.close()
             rows = ps_cursor.fetchall()
-            postgres_pool.putconn(postgres_pool_conn)
+            self.postgres_pool.putconn(postgres_pool_conn)
 
             for row in rows:
                 yield Friend(username = request_username, friend_username = row.friend)

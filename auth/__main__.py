@@ -13,31 +13,37 @@ class AuthsService(AuthServiceServicer):
     def __init__(self) -> None:
         #TODO: Handle hosts through Docker or JSON
 
-        self.token_channel = grpc.insecure_channel('token_dispenser:6969')
+        self.token_channel = grpc.insecure_channel('tokenDispenser:6969')
         self.token_stub = TokenDispenserServiceStub(self.token_channel)
 
         try:
             grpc.channel_ready_future(self.token_channel).result(timeout = 20)
         except grpc.FutureTimeoutError:
             print("Failed to connect to token_dispenser")
+            exit(1)
 
-        self.settings_channel = grpc.insecure_channel('user_settings:2884')
+        self.settings_channel = grpc.insecure_channel('userSettings:2884')
         self.settings_stub = UserSettingServiceStub(self.settings_channel)
         try:
             grpc.channel_ready_future(self.settings_channel).result(timeout = 20)
         except grpc.FutureTimeoutError:
             print("Failed to connect to user settings")
+            exit(1)
 
     def check_auth(self, request: Auth, context: grpc.RpcContext = None) -> Token:
         user = request.username
+        print("Checking auth")
         passw = request.password
         if user is None or passw is None:
             context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
             context.set_details('Username or Password cannot be empty')
             return Token()
-        
+
+        print("asking for password")
         correct_auth = self.settings_stub.get_password(request)
         correct_pass = correct_auth.password
+        print("got password")
+        return Token()
 
         if passw == correct_pass:
             return Token(username = "", token = "")

@@ -13,6 +13,7 @@ ONE_HOUR = 3600
 
 
 class TokenService(TokenDispenserServiceServicer):
+
     def __init__(self):
         self._redis_conn = redis.StrictRedis(host = host, port = port, encoding = "utf-8")
 
@@ -26,6 +27,20 @@ class TokenService(TokenDispenserServiceServicer):
 
         self._redis_conn.set(name = user + "_token", value = new_token, ex = ONE_HOUR)
         return Token(username = user, token = new_token)
+
+    def check_token(self, request: Token, context: grpc.RpcContext) -> Token:
+        user = request.username
+        if user is None:
+            return Token(username = user)
+
+        old_token = self._redis_conn.get(name = user + "_token")
+        if old_token is None:
+            return Token(username = user)
+        else:
+            return Token(username = request.username, token = old_token)
+
+    def get_username(self, request, context):
+        return super().get_username(request, context)
 
 
 if __name__ == "__main__":

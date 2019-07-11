@@ -17,6 +17,8 @@ services:
       - auth
       - token_dispenser:token
       - post_importer:postImporter
+      - news_feed:newsFeed
+      - wall
     expose:
       - 50051
 
@@ -68,8 +70,8 @@ services:
       context: auth
     tty: true
     links:
-      - token_dispenser
-      - user_settings
+      - token_dispenser:tokenDispenser
+      - user_settings:userSettings
     ports:
       - 2884
 
@@ -104,6 +106,21 @@ services:
       - news_feed_data_access:newsFeedDataAccess
       - friends
 
+  wall:
+    build:
+      context: wall
+    tty: true
+    links:
+      - wall_redis:wallCache
+      - wall_postgres:wallPostgres
+    ports:
+      - 4698
+  wall_redis:
+    image: redis:alpine
+  wall_postgres:
+    image: postgres:alpine
+
+
   news_feed_data_access:
     build: 
       context: news_feed_data_access
@@ -121,6 +138,7 @@ services:
       context: user_setting
     tty: true
     links:
-      - user_settings_postgres
+      - user_settings_postgres:usersettingdb
   user_settings_postgres:
-    image: postgres:alpine
+    build:
+      context: user_setting_db

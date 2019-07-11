@@ -63,6 +63,7 @@ class PostImporter : Foobar_PostImporter_PostImporterServiceProvider {
             request.loc.long < 180
 
         if !has_msg {
+            print("post has no message")
             throw PostImporterError.NoMessage
         }
         
@@ -77,6 +78,7 @@ class PostImporter : Foobar_PostImporter_PostImporterServiceProvider {
         
         self.redis.incr(self.POST_INCREMENT_KEY) { (next_id, error) in
             if error != nil {
+                print("failed to increment redis key")
                 print(error!.localizedDescription)
                 did_error = true
                 return
@@ -98,6 +100,7 @@ class PostImporter : Foobar_PostImporter_PostImporterServiceProvider {
             
             try! self.redis.lpush(self.IMPORT_QUEUE, values: post.jsonString(), callback: { (_, error) in
                 if error != nil {
+                    print("print from failed redis push")
                     print(error!.localizedDescription)
                     did_error = true
                 }
@@ -105,6 +108,7 @@ class PostImporter : Foobar_PostImporter_PostImporterServiceProvider {
         }
         
         if did_error {
+            print("unknown error")
             throw NSError(domain: "Unknown Error", code: 1, userInfo: [:])
         }
         

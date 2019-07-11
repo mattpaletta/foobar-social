@@ -42,8 +42,12 @@ class TestPostImporter(TestCase):
                         datetime = int(time.time() * 1000),
                         msg = "here is my msg",
                         id = -1)
-            # Shouldn't throw an exception, should replace id
-            s.create_post(post)
+            try:
+                # Shouldn't throw an exception, should replace id
+                s.create_post(post)
+                assert True
+            except:
+                assert False
 
     def test_create_post_invalid_loc(self):
         with grpc.insecure_channel(target = self.post_importer_host + ":9000") as channel:

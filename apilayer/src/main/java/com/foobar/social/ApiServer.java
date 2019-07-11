@@ -6,14 +6,18 @@ import foobar.apilayer.ApiLayerServiceGrpc;
 import foobar.auth.Auth;
 import foobar.auth.AuthServiceGrpc;
 import foobar.auth.Token;
+import foobar.news_feed.NewsFeedServiceGrpc;
 import foobar.post_importer.PostImporterServiceGrpc;
 import foobar.posts.Post;
 import foobar.shared.Empty;
 import foobar.tokenizer.TokenDispenserServiceGrpc;
+import foobar.user.User;
 import foobar.wall.WallQuery;
+import foobar.wall.WallServiceGrpc;
 import io.grpc.*;
 import io.grpc.stub.StreamObserver;
 
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -66,38 +70,55 @@ public class ApiServer {
 
     static class APILayerImpl extends ApiLayerServiceGrpc.ApiLayerServiceImplBase{
 
-        private final ManagedChannel authChannel;
-        private final ManagedChannel tokenChannel;
-        private final ManagedChannel postChannel;
-
         // TODO: Consider FutureStub
         private final AuthServiceGrpc.AuthServiceBlockingStub authStub;
         private final TokenDispenserServiceGrpc.TokenDispenserServiceBlockingStub tokenStub;
         private final PostImporterServiceGrpc.PostImporterServiceBlockingStub postStub;
+//        private final NewsFeedServiceGrpc.NewsFeedServiceBlockingStub nfStub;
+        private final WallServiceGrpc.WallServiceBlockingStub wallStub;
 
         APILayerImpl() {
-            this.authChannel = ManagedChannelBuilder
+            final ManagedChannel authChannel;
+            final ManagedChannel tokenChannel;
+            final ManagedChannel postChannel;
+            final ManagedChannel wallChannel;
+            final ManagedChannel nfChannel;
+
+            authChannel = ManagedChannelBuilder
                     .forAddress("auth", 2884)
                     .usePlaintext()
                     .build();
-            this.authStub = AuthServiceGrpc.newBlockingStub(this.authChannel);
+            this.authStub = AuthServiceGrpc.newBlockingStub(authChannel);
 
-            this.tokenChannel = ManagedChannelBuilder
+            tokenChannel = ManagedChannelBuilder
                     .forAddress("token", 6969)
                     .usePlaintext()
                     .build();
-            this.tokenStub = TokenDispenserServiceGrpc.newBlockingStub(this.tokenChannel);
+            this.tokenStub = TokenDispenserServiceGrpc.newBlockingStub(tokenChannel);
 
-            this.postChannel = ManagedChannelBuilder
+            postChannel = ManagedChannelBuilder
                     .forAddress("postImporter", 9000)
                     .usePlaintext()
                     .build();
-            this.postStub = PostImporterServiceGrpc.newBlockingStub(this.postChannel);
+            this.postStub = PostImporterServiceGrpc.newBlockingStub(postChannel);
+
+            wallChannel = ManagedChannelBuilder
+                    .forAddress("wall", 4698)
+                    .usePlaintext()
+                    .build();
+            this.wallStub = WallServiceGrpc.newBlockingStub(wallChannel);
+
+//            nfChannel = ManagedChannelBuilder
+//                    .forAddress("newsFeed", 9000)
+//                    .usePlaintext()
+//                    .build();
+//            this.nfStub = NewsFeedServiceGrpc.newBlockingStub(nfChannel).withWaitForReady();
         }
 
         @Override
         public void login(Auth request, StreamObserver<Token> responseObserver) {
             Token token;
+            System.out.println("Submitting login request");
             try {
                 token = authStub.checkAuth(request);
             } catch (StatusRuntimeException e) {
@@ -124,7 +145,7 @@ public class ApiServer {
             try {
                 token = tokenStub.checkToken(token);
             } catch (StatusRuntimeException e) {
-                logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
+                logger.log(Level.WARNING, "Check Token RPC failed: {0}", e.getStatus());
                 responseObserver.onError(e);
                 return;
             }
@@ -137,7 +158,7 @@ public class ApiServer {
             try {
                 Empty post = postStub.createPost(request);
             } catch (StatusRuntimeException e) {
-                logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
+                logger.log(Level.WARNING, "Create Post RPC failed: {0}", e.getStatus());
                 responseObserver.onError(e);
                 return;
             }
@@ -147,12 +168,27 @@ public class ApiServer {
 
         @Override
         public void getWall(WallQuery request, StreamObserver<Post> responseObserver) {
-            super.getWall(request, responseObserver);
+            String username = request.getUsername();
+            User user = User.newBuilder().setUsername(username).build();
+            Iterator<Post> posts = this.wallStub.fetch(user);
+            // Forward all posts to user
+            while (posts.hasNext()) {
+                Post nextPost = posts.next();
+                responseObserver.onNext(nextPost);
+            }
+            responseObserver.onCompleted();
         }
 
         @Override
         public void getNewsFeed(WallQuery request, StreamObserver<Post> responseObserver) {
-            super.getNewsFeed(request, responseObserver);
+//            Iterator<Post> posts = this.nfStub.getNewsFeed(request);
+//
+//            // Forward all posts to user
+//            while (posts.hasNext()) {
+//                Post nextPost = posts.next();
+//                responseObserver.onNext(nextPost);
+//            }
+            responseObserver.onCompleted();
         }
     }
 }
