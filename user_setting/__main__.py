@@ -1,3 +1,4 @@
+import logging
 from concurrent import futures
 from time import sleep
 import grpc
@@ -14,21 +15,24 @@ import psycopg2.pool
 class UserSettingService(UserSettingServiceServicer):
     
     def __init__(self):
-        try:
-            self.postgres_pool = psycopg2.pool.ThreadedConnectionPool(minconn = 1,
-                                                                      maxconn = 20,
-                                                                      user = "docker",
-                                                                      password = "password",
-                                                                      host = "usersettingdb",
-                                                                      port = "5432",
-                                                                      database = "user_settings_db")
-            if not self.postgres_pool:
-                # context.set_code(grpc.StatusCode.INTERNAL)
-                print('Failure to connect to Postgres')
-                exit(1)
-        except (Exception, psycopg2.DatabaseError) as error:
-            # context.set_code(grpc.StatusCode.INTERNAL)
-            print('Failure to connect to Postgres: ', error)
+        for i in range(100):
+            try:
+                # Give the database a change to initialize
+                self.postgres_pool = psycopg2.pool.ThreadedConnectionPool(minconn = 1,
+                                                                          maxconn = 20,
+                                                                          user = "docker",
+                                                                          password = "password",
+                                                                          host = "usersettingdb",
+                                                                          port = "5432",
+                                                                          database = "user_settings_serv")
+                if self.postgres_pool:
+                    break
+            except (Exception, psycopg2.DatabaseError) as error:
+                logging.error('Failure to connect to Postgres: ', error)
+            sleep(2 * i)
+
+        if not self.postgres_pool:
+            logging.error('Failure to connect to Postgres')
             exit(1)
 
     def get_password(self, request: Auth, context: grpc.RpcContext = None) -> Auth:
@@ -52,7 +56,7 @@ class UserSettingService(UserSettingServiceServicer):
             # Retrieve password for the provided username from user_setting
             # If we have more than 1, we don't really care how many more
             # ideally, we would only limit to the one row.
-            ps_cursor.execute("SELECT passw FROM user_setting_db WHERE username = '{0} LIMIT 2';".format(request_username))
+            ps_cursor.execute("SELECT passw FROM user_settings_db.user_settings WHERE username = '{0} LIMIT 2';".format(request_username))
             rows = ps_cursor.fetchall()
             ps_cursor.close()
             self.postgres_pool.putconn(postgres_pool_conn)
@@ -74,9 +78,13 @@ class UserSettingService(UserSettingServiceServicer):
     def __del__(self):
         # closing database connection.
         # use closeall method to close all the active connection if you want to turn of the application
-        if self.postgres_pool:
-            self.postgres_pool.closeall()
-        print("PostgreSQL connection pool is closed")
+        try:
+            if self.postgres_pool:
+                self.postgres_pool.closeall()
+            print("PostgreSQL connection pool is closed")
+        except AttributeError:
+            # This means we didn't allocate the resource, so nothing to do
+            pass
 
 
 if __name__ == "__main__":

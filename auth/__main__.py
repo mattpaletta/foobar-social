@@ -43,7 +43,6 @@ class AuthsService(AuthServiceServicer):
         correct_auth = self.settings_stub.get_password(request)
         correct_pass = correct_auth.password
         print("got password")
-        return Token()
 
         if passw == correct_pass:
             return Token(username = "", token = "")

@@ -29,10 +29,12 @@ class TestApiLayer(TestCase):
             s = ApiLayerServiceStub(channel = channel)
 
             auth = Auth(username = "student", password = None)
-
-            token: Token = s.login(auth)
-            assert token.username == "student"
-            assert token.token is None or token.token == ""
+            try:
+                token: Token = s.login(auth)
+                assert token.username == "student"
+                assert token.token is None or token.token == ""
+            except:
+                assert False
 
     def test_login_empty_username(self):
         with grpc.insecure_channel(target = self.apilayer_host + ":50051") as channel:
@@ -40,9 +42,12 @@ class TestApiLayer(TestCase):
 
             auth = Auth(username = None, password = "my_pass")
 
-            token: Token = s.login(auth)
-            assert token.username is None or token.username == ""
-            assert token.token is None or token.token == ""
+            try:
+                token: Token = s.login(auth)
+                assert token.username is None or token.username == ""
+                assert token.token is None or token.token == ""
+            except:
+                assert False
 
     # post, login, (logout), get_news_feed, get_wall, add_friend, remove_friend
     # TODO: Add/remove friend
@@ -57,7 +62,7 @@ class TestApiLayer(TestCase):
 
             try:
                 s.post(p)
-                assert(True)
+                assert True
             except:
                 assert(False, "failed to post")
 

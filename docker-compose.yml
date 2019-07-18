@@ -27,11 +27,12 @@ services:
       context: friends
     tty: true
     links:
-      - friends_postgres:friendsDB
+      - friends_postgres:friendsdb
     ports:
       - 2884
   friends_postgres:
-    image: postgres:alpine
+    build:
+      context: friends_db
 
   news_feed:
     build:
@@ -45,12 +46,13 @@ services:
       context: posts
     tty: true
     links:
-      - posts_postgres:postsDB
+      - posts_postgres:postsdb
       - posts_redis:postsCache
     ports:
       - 2885
   posts_postgres:
-    image: postgres:alpine
+    build:
+      context: posts_db
   posts_redis:
     image: redis:alpine
 
@@ -112,14 +114,14 @@ services:
     tty: true
     links:
       - wall_redis:wallCache
-      - wall_postgres:wallPostgres
+      - wall_postgres:walldb
     ports:
       - 4698
   wall_redis:
     image: redis:alpine
   wall_postgres:
-    image: postgres:alpine
-
+    build:
+      context: wall_db
 
   news_feed_data_access:
     build: 

@@ -34,7 +34,7 @@ class NewsFeedDataAccess : Foobar_NewsFeedDataAccess_NewsFeedDataAccessServicePr
          ConnectionOptions an optional set of:
          options - command-line options to be sent to the server
          databaseName - the database name
-         userName - the user name
+         userName - the username
          password - the user password
          connectionTimeout - maximum wait for connection in seconds. Zero or not specified means wait indefinitely.
          */

@@ -1,4 +1,4 @@
-CREATE SCHEMA IF NOT EXISTS user_settings_db;
+CREATE SCHEMA IF NOT EXISTS wall_db;
 
 DROP ROLE IF EXISTS docker;
 CREATE ROLE docker LOGIN PASSWORD 'password';
@@ -15,13 +15,10 @@ CREATE ROLE docker LOGIN PASSWORD 'password';
 -- END
 -- $body$;
 
-CREATE DATABASE user_settings_serv WITH OWNER docker;
+-- GRANT ALL PRIVILEGES ON SCHEMA wall_db TO docker;
+CREATE DATABASE wall_serv WITH OWNER docker;
 
-CREATE TABLE IF NOT EXISTS user_settings_db.user_settings (
-  user_id SERIAL PRIMARY KEY,
-  username VARCHAR(50) UNIQUE NOT NULL,
-  passw VARCHAR(50) NOT NULL,
-  phone_number VARCHAR(50),
-  verification BOOLEAN,
-  private BOOLEAN
+-- TODO: Complete filling in the required schema
+CREATE TABLE IF NOT EXISTS wall_db.wall (
+  wall_id SERIAL PRIMARY KEY
 );
