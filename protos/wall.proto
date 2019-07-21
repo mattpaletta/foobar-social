@@ -17,6 +17,6 @@ message WallQuery {
 }
 
 service WallService {
-    rpc fetch(user.User) returns (stream posts.Post) {};
+    rpc fetch(WallQuery) returns (stream posts.Post) {};
     rpc put(posts.Post) returns (shared.Empty) {};
 }

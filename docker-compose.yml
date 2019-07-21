@@ -9,6 +9,13 @@ services:
       - auth
       - post_importer:postImporter
 
+  client:
+    build:
+      context: client
+    tty: true
+    links:
+      - apilayer
+
   apilayer:
     build:
       context: apilayer
@@ -72,8 +79,8 @@ services:
       context: auth
     tty: true
     links:
-      - token_dispenser:tokenDispenser
-      - user_settings:userSettings
+      - token_dispenser:tokendispenser
+      - user_settings:usersettings
     ports:
       - 2884
 
@@ -102,11 +109,16 @@ services:
 
   news_feed_merge:
     build:
-      context: news_feed_data_access
+      context: news_feed_merge
     tty: true
     links:
       - news_feed_data_access:newsFeedDataAccess
       - friends
+      - post_importer_redis
+      - wall
+      - posts
+    environment:
+      - IMPORT_QUEUE=post_import
 
   wall:
     build:
@@ -115,6 +127,7 @@ services:
     links:
       - wall_redis:wallCache
       - wall_postgres:walldb
+      - posts
     ports:
       - 4698
   wall_redis:
@@ -133,7 +146,9 @@ services:
   news_feed_data_access_redis:
     image: redis:alpine
   news_feed_data_access_postgres:
-    image: postgres:alpine
+    build:
+      context: news_feed_data_access/db
+    tty: true
 
   user_settings:
     build:

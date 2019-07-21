@@ -13,7 +13,7 @@ class AuthsService(AuthServiceServicer):
     def __init__(self) -> None:
         #TODO: Handle hosts through Docker or JSON
 
-        self.token_channel = grpc.insecure_channel('tokenDispenser:6969')
+        self.token_channel = grpc.insecure_channel('tokendispenser:6969')
         self.token_stub = TokenDispenserServiceStub(self.token_channel)
 
         try:
@@ -22,7 +22,7 @@ class AuthsService(AuthServiceServicer):
             print("Failed to connect to token_dispenser")
             exit(1)
 
-        self.settings_channel = grpc.insecure_channel('userSettings:2884')
+        self.settings_channel = grpc.insecure_channel('usersettings:2884')
         self.settings_stub = UserSettingServiceStub(self.settings_channel)
         try:
             grpc.channel_ready_future(self.settings_channel).result(timeout = 20)
@@ -37,18 +37,18 @@ class AuthsService(AuthServiceServicer):
         if user is None or passw is None:
             context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
             context.set_details('Username or Password cannot be empty')
-            return Token()
+            return Token(username = user)
 
         print("asking for password")
         correct_auth = self.settings_stub.get_password(request)
         correct_pass = correct_auth.password
         print("got password")
 
-        if passw == correct_pass:
-            return Token(username = "", token = "")
+        if passw != correct_pass:
+            return Token(username = user, token = "")
 
         # Can't mutate the request, so we create a new token
-        return self.token_stub.create_token(Token())
+        return self.token_stub.create_token(Token(username = user))
 
 
 if __name__ == "__main__":

@@ -48,6 +48,12 @@ auth: $(auth)
 apilayer: $(PROTO_DIR)/*.proto
 	cp -r protos/ apilayer/src/main/proto
 
+client:
+	$(call generate_protos_py,apilayer,client)
+	$(call generate_protos_py,user,client)
+	$(call generate_protos_py,shared,client)
+	docker-compose up --build -d client && docker run -it --rm --net foobar-social_default foobar-social_client:latest
+
 friends := $(call get_outputs,friends,friends)
 $(friends):
 	$(call generate_protos_py_unary,friends)
@@ -61,6 +67,8 @@ news_feed: $(news_feed)
 news_feed_merge: friends profile news_feed_data_access
 	$(call generate_protos_swift,friends,news_feed_merge)
 	$(call generate_protos_swift,profile,news_feed_merge)
+	$(call generate_protos_swift,wall,news_feed_merge)
+	$(call generate_protos_swift,posts,news_feed_merge)
 	$(call generate_protos_swift,news_feed_data_access,news_feed_merge)
 
 news_feed_data_access := $(call get_outputs,news_feed_data_access,news_feed_data_access)
@@ -73,6 +81,7 @@ news_feed_data_access: $(news_feed_data_access)
 post_importer := $(call get_outputs,post_importer,post_importer)
 $(post_importer):
 	$(call generate_protos_swift,post_importer,post_importer)
+
 post_importer: $(post_importer)
 
 posts := $(call get_outputs,posts,posts)
@@ -106,4 +115,4 @@ tester: protos/*.proto
 clean:
 	rm -rf **/*_pb2.pyi **/*_pb2.py **/*_pb2_grpc.py **/*grpc.swift **/*pb.swift
 
-all: auth friends news_feed news_feed_data_access post_importer posts profile token user_setting wall tester
+all: apilayer auth friends news_feed news_feed_merge news_feed_data_access post_importer posts profile token user_setting wall tester

@@ -6,12 +6,10 @@ import foobar.apilayer.ApiLayerServiceGrpc;
 import foobar.auth.Auth;
 import foobar.auth.AuthServiceGrpc;
 import foobar.auth.Token;
-import foobar.news_feed.NewsFeedServiceGrpc;
 import foobar.post_importer.PostImporterServiceGrpc;
 import foobar.posts.Post;
 import foobar.shared.Empty;
 import foobar.tokenizer.TokenDispenserServiceGrpc;
-import foobar.user.User;
 import foobar.wall.WallQuery;
 import foobar.wall.WallServiceGrpc;
 import io.grpc.*;
@@ -72,8 +70,8 @@ public class ApiServer {
 
         // TODO: Consider FutureStub
         private final AuthServiceGrpc.AuthServiceBlockingStub authStub;
-        private final TokenDispenserServiceGrpc.TokenDispenserServiceBlockingStub tokenStub;
-        private final PostImporterServiceGrpc.PostImporterServiceBlockingStub postStub;
+        private final TokenDispenserServiceGrpc.TokenDispenserServiceFutureStub tokenStub;
+        private final PostImporterServiceGrpc.PostImporterServiceFutureStub postStub;
 //        private final NewsFeedServiceGrpc.NewsFeedServiceBlockingStub nfStub;
         private final WallServiceGrpc.WallServiceBlockingStub wallStub;
 
@@ -94,13 +92,13 @@ public class ApiServer {
                     .forAddress("token", 6969)
                     .usePlaintext()
                     .build();
-            this.tokenStub = TokenDispenserServiceGrpc.newBlockingStub(tokenChannel);
+            this.tokenStub = TokenDispenserServiceGrpc.newFutureStub(tokenChannel);
 
             postChannel = ManagedChannelBuilder
                     .forAddress("postImporter", 9000)
                     .usePlaintext()
                     .build();
-            this.postStub = PostImporterServiceGrpc.newBlockingStub(postChannel);
+            this.postStub = PostImporterServiceGrpc.newFutureStub(postChannel);
 
             wallChannel = ManagedChannelBuilder
                     .forAddress("wall", 4698)
@@ -143,39 +141,52 @@ public class ApiServer {
              */
             Token token = Token.newBuilder().setUsername(request.getUsername()).build();
             try {
-                token = tokenStub.checkToken(token);
+                token = tokenStub.checkToken(token).get();
             } catch (StatusRuntimeException e) {
                 logger.log(Level.WARNING, "Check Token RPC failed: {0}", e.getStatus());
                 responseObserver.onError(e);
                 return;
+            } catch (InterruptedException|java.util.concurrent.ExecutionException e) {
+                responseObserver.onError(e);
+                return;
             }
 
-            if(token.getToken() == null){
+            if(token.getToken() == null) {
                 responseObserver.onError(new Exception("Invalid Token"));
                 return;
             }
 
             try {
-                Empty post = postStub.createPost(request);
+                Empty post = postStub.createPost(request).get();
             } catch (StatusRuntimeException e) {
                 logger.log(Level.WARNING, "Create Post RPC failed: {0}", e.getStatus());
                 responseObserver.onError(e);
                 return;
+            } catch (InterruptedException|java.util.concurrent.ExecutionException e) {
+                responseObserver.onError(e);
+                return;
             }
 
+            responseObserver.onNext(request);
             responseObserver.onCompleted();
         }
 
         @Override
         public void getWall(WallQuery request, StreamObserver<Post> responseObserver) {
-            String username = request.getUsername();
-            User user = User.newBuilder().setUsername(username).build();
-            Iterator<Post> posts = this.wallStub.fetch(user);
-            // Forward all posts to user
-            while (posts.hasNext()) {
-                Post nextPost = posts.next();
-                responseObserver.onNext(nextPost);
+            Iterator<Post> posts;
+            try {
+                System.out.println("Fetching wall");
+                posts = this.wallStub.withWaitForReady().fetch(request);
+
+                // Forward all posts to user
+                while (posts.hasNext()) {
+                    Post nextPost = posts.next();
+                    responseObserver.onNext(nextPost);
+                }
+            } catch (Exception e) {
+                System.err.println(e);
             }
+
             responseObserver.onCompleted();
         }
 

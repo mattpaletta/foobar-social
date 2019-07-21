@@ -1,0 +1,5 @@
+grpcio-tools
+grpcio
+essential-generators
+prettytable
+humanfriendly

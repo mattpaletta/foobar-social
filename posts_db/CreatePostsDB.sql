@@ -1,7 +1,7 @@
-CREATE SCHEMA IF NOT EXISTS posts_db;
+-- CREATE SCHEMA IF NOT EXISTS posts_db;
 
-DROP ROLE IF EXISTS docker;
-CREATE ROLE docker LOGIN PASSWORD 'password';
+-- DROP ROLE IF EXISTS docker;
+-- CREATE ROLE docker LOGIN PASSWORD 'password';
 
 -- DO
 -- $body$
@@ -15,12 +15,12 @@ CREATE ROLE docker LOGIN PASSWORD 'password';
 -- END
 -- $body$;
 
-CREATE DATABASE posts_serv WITH OWNER docker;
+-- CREATE DATABASE posts_serv WITH OWNER docker;
 
 -- GRANT ALL PRIVILEGES ON SCHEMA posts_db TO docker;
 
-CREATE TABLE IF NOT EXISTS posts_db.posts (
-  post_id SERIAL PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS posts (
+  post_id BIGINT PRIMARY KEY,
   username VARCHAR(50) NOT NULL,
   post_date TIMESTAMP,
   msg VARCHAR(1000),

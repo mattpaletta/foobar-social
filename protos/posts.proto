@@ -23,6 +23,7 @@ message PostQuery {
 }
 
 service PostService {
-    rpc get_post(PostQuery) returns (stream Post) {};
-    rpc create_post(Post) returns (Post) {};
+    rpc get_posts(PostQuery) returns (stream Post) {};
+    rpc fetch(Post) returns (Post) {};
+    rpc create_post(Post) returns (shared.Empty) {};
 }

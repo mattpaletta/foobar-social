@@ -2,8 +2,8 @@
 
 apilayer/target
 apilayer/src/main/proto
-**/*.pb.swift
-**/*.grpc.swift
+#**/*.pb.swift
+#**/*.grpc.swift
 
 ### Python template
 **/*_pb2.py

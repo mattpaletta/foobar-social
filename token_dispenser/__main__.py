@@ -1,3 +1,5 @@
+import random
+import string
 from concurrent import futures
 from time import sleep
 import grpc
@@ -19,7 +21,7 @@ class TokenService(TokenDispenserServiceServicer):
 
     def create_token(self, request: Auth, context: grpc.RpcContext = None) -> Token:
         # TODO: Generate string
-        new_token = "hello world"
+        new_token = TokenService.randomString(16)
         user = request.username
         passw = request.password
         if user is None or passw is None:
@@ -28,7 +30,13 @@ class TokenService(TokenDispenserServiceServicer):
         self._redis_conn.set(name = user + "_token", value = new_token, ex = ONE_HOUR)
         return Token(username = user, token = new_token)
 
-    def check_token(self, request: Token, context: grpc.RpcContext) -> Token:
+    @staticmethod
+    def randomString(length: int = 10):
+        """Generate a random string of fixed length """
+        letters = string.ascii_lowercase + string.ascii_uppercase + string.ascii_letters
+        return ''.join(random.choice(letters) for i in range(length))
+
+    def check_token(self, request: Token, context: grpc.RpcContext = None) -> Token:
         user = request.username
         if user is None:
             return Token(username = user)
@@ -37,7 +45,7 @@ class TokenService(TokenDispenserServiceServicer):
         if old_token is None:
             return Token(username = user)
         else:
-            return Token(username = request.username, token = old_token)
+            return Token(username = user, token = old_token)
 
     def get_username(self, request, context):
         return super().get_username(request, context)

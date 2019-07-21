@@ -24,7 +24,7 @@ class UserSettingService(UserSettingServiceServicer):
                                                                           password = "password",
                                                                           host = "usersettingdb",
                                                                           port = "5432",
-                                                                          database = "user_settings_serv")
+                                                                          database = "user_settings")
                 if self.postgres_pool:
                     break
             except (Exception, psycopg2.DatabaseError) as error:
@@ -34,6 +34,21 @@ class UserSettingService(UserSettingServiceServicer):
         if not self.postgres_pool:
             logging.error('Failure to connect to Postgres')
             exit(1)
+        self._create_temp_user()
+
+    def _create_temp_user(self):
+        logging.info("Creating temp user")
+        with self.postgres_pool.getconn() as conn:
+            ps_cursor = conn.cursor()
+            ps_cursor.execute("""INSERT INTO user_settings
+                (username, passw, phone_number, verification, private)
+            SELECT 'student', 'password', '250-123-4567', true, false
+            WHERE
+                NOT EXISTS (
+                    SELECT username, passw, phone_number, verification, private FROM user_settings WHERE username = 'student'
+                );
+            """)
+            conn.commit()
 
     def get_password(self, request: Auth, context: grpc.RpcContext = None) -> Auth:
 
@@ -52,14 +67,15 @@ class UserSettingService(UserSettingServiceServicer):
         if postgres_pool_conn:
             print("Got connection")
 
-            ps_cursor = postgres_pool_conn.cursor()
-            # Retrieve password for the provided username from user_setting
-            # If we have more than 1, we don't really care how many more
-            # ideally, we would only limit to the one row.
-            ps_cursor.execute("SELECT passw FROM user_settings_db.user_settings WHERE username = '{0} LIMIT 2';".format(request_username))
-            rows = ps_cursor.fetchall()
-            ps_cursor.close()
+            with postgres_pool_conn.cursor() as ps_cursor:
+                # Retrieve password for the provided username from user_setting
+                # If we have more than 1, we don't really care how many more
+                # ideally, we would only limit to the one row.
+                ps_cursor.execute("""SELECT passw FROM user_settings WHERE username = %s LIMIT 2;""", (request_username, ))
+                rows = ps_cursor.fetchall()
             self.postgres_pool.putconn(postgres_pool_conn)
+
+            print("Got: {0} rows".format(len(rows)))
 
             # Should have one and only one password per username.
             if len(rows) != 1:
@@ -67,8 +83,8 @@ class UserSettingService(UserSettingServiceServicer):
                 context.set_details('User Setting DB Error')
                 return Auth()
             
-            retrieved_pass = rows[0]
-            
+            first_row = rows[0]
+            retrieved_pass = first_row[0]
             return Auth(username = request_username, password = retrieved_pass)
         else:
             context.set_code(grpc.StatusCode.INTERNAL)
