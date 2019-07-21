@@ -181,6 +181,14 @@ class NewsFeedMerge {
     }
 }
 
-let server = NewsFeedMerge(redis: Connection(host: "post_importer_redis", port: 6379))
-server.start()
+let num_servers = 10
+print("Starting \(num_servers) servers")
+
+for _ in 0 ..< num_servers {
+    DispatchQueue.global(qos: .default).async {
+        let server = NewsFeedMerge(redis: Connection(host: "post_importer_redis", port: 6379))
+        server.start()
+    }
+}
+
 dispatchMain()

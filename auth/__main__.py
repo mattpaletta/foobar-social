@@ -32,23 +32,21 @@ class AuthsService(AuthServiceServicer):
 
     def check_auth(self, request: Auth, context: grpc.RpcContext = None) -> Token:
         user = request.username
-        print("Checking auth")
         passw = request.password
         if user is None or passw is None:
             context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
             context.set_details('Username or Password cannot be empty')
             return Token(username = user)
 
-        print("asking for password")
-        correct_auth = self.settings_stub.get_password(request)
+        correct_auth_future = self.settings_stub.get_password.future(request)
+        correct_auth = correct_auth_future.result()
         correct_pass = correct_auth.password
-        print("got password")
 
         if passw != correct_pass:
             return Token(username = user, token = "")
 
         # Can't mutate the request, so we create a new token
-        return self.token_stub.create_token(Token(username = user))
+        return self.token_stub.create_token.future(Token(username = user)).result()
 
 
 if __name__ == "__main__":

@@ -50,7 +50,6 @@ class PostImporter : Foobar_PostImporter_PostImporterServiceProvider {
     }
     
     func create_post(request: Foobar_Posts_Post, session: Foobar_PostImporter_PostImporterServicecreate_postSession) throws -> Foobar_Shared_Empty {
-        print("Processing message")
         
         // Verify post
         let has_msg = request.msg != ""
@@ -78,21 +77,17 @@ class PostImporter : Foobar_PostImporter_PostImporterServiceProvider {
         // TODO: Verify that username exists
         
         var did_error = false
-        print("Incrementing redis")
         
         self.redis.incr(self.POST_INCREMENT_KEY) { (next_id, error) in
             if error != nil {
-                print("failed to increment redis key")
-                print(error!.localizedDescription)
+                print("failed to increment redis key", error!.localizedDescription)
                 did_error = true
                 return
             }
-            print("Incremented key")
             
             var post = Foobar_Posts_Post()
             
             guard let id = next_id else {
-                print("Got no id")
                 return
             }
             // Construct the new post
@@ -110,37 +105,31 @@ class PostImporter : Foobar_PostImporter_PostImporterServiceProvider {
                 post.loc = request.loc
             }
             
-            print("Pushing to redis")
             do {
                 let json = try post.jsonString()
-                print("pushing: \(json)")
+//                print("pushing: \(json)")
                 self.redis.lpush(self.IMPORT_QUEUE, values: RedisString(json), callback: { (_, error) in
                     if error != nil {
-                        print("print from failed redis push")
-                        print(error!.localizedDescription)
+                        print("print from failed redis push", error!.localizedDescription)
                         did_error = true
                     }
                 })
             } catch {
-                print("Failed pushing into redis")
-                print(error.localizedDescription)
+                print("Failed pushing into redis", error.localizedDescription)
                 session.cancel()
             }
         }
         
         if did_error {
-            print("unknown error")
             throw NSError(domain: "Unknown Error", code: 1, userInfo: [:])
-        } else {
-            print("Got no errors")
         }
         
         return Foobar_Shared_Empty()
     }
 }
 
+gRPC.initialize()
 let inst = PostImporter(redis: Connection(host: "post_importer_redis", port: 6379))
-
 let address = "0.0.0.0:9000"
 print("Starting server in \(address)")
 let server = ServiceServer(address: address,

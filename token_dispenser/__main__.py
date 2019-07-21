@@ -20,7 +20,7 @@ class TokenService(TokenDispenserServiceServicer):
         self._redis_conn = redis.StrictRedis(host = host, port = port, encoding = "utf-8")
 
     def create_token(self, request: Auth, context: grpc.RpcContext = None) -> Token:
-        # TODO: Generate string
+        print("Creating token")
         new_token = TokenService.randomString(16)
         user = request.username
         passw = request.password
@@ -37,6 +37,8 @@ class TokenService(TokenDispenserServiceServicer):
         return ''.join(random.choice(letters) for i in range(length))
 
     def check_token(self, request: Token, context: grpc.RpcContext = None) -> Token:
+        print("Checking token")
+
         user = request.username
         if user is None:
             return Token(username = user)

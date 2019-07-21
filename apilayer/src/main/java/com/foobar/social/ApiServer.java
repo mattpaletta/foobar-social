@@ -14,8 +14,12 @@ import foobar.wall.WallQuery;
 import foobar.wall.WallServiceGrpc;
 import io.grpc.*;
 import io.grpc.stub.StreamObserver;
+import io.prometheus.client.Histogram;
 
 import java.util.Iterator;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,11 +28,23 @@ public class ApiServer {
     private static final Logger logger = Logger.getLogger(ApiServer.class.getName());
 
     private Server server;
+    static final Histogram requestDuration = Histogram.build()
+            .name("request_duration_seconds").help("Request duration in seconds.").register();
+//    static final Histogram postLatency = Histogram.build()
+//            .name("post_duration_seconds").help("Post duration in seconds.").register();
 
     private void start() throws IOException {
         /* The port on which the server should run */
         int port = 50051;
         server = ServerBuilder.forPort(port)
+                .intercept(new ServerInterceptor() {
+                    @Override
+                    public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
+                                                                         ServerCallHandler<ReqT, RespT> next) {
+                        call.setCompression("gzip");
+                        return next.startCall(call, headers);
+                    }
+                })
                 .addService(new APILayerImpl())
                 .build()
                 .start();
@@ -69,7 +85,7 @@ public class ApiServer {
     static class APILayerImpl extends ApiLayerServiceGrpc.ApiLayerServiceImplBase{
 
         // TODO: Consider FutureStub
-        private final AuthServiceGrpc.AuthServiceBlockingStub authStub;
+        private final AuthServiceGrpc.AuthServiceFutureStub authStub;
         private final TokenDispenserServiceGrpc.TokenDispenserServiceFutureStub tokenStub;
         private final PostImporterServiceGrpc.PostImporterServiceFutureStub postStub;
 //        private final NewsFeedServiceGrpc.NewsFeedServiceBlockingStub nfStub;
@@ -86,7 +102,7 @@ public class ApiServer {
                     .forAddress("auth", 2884)
                     .usePlaintext()
                     .build();
-            this.authStub = AuthServiceGrpc.newBlockingStub(authChannel);
+            this.authStub = AuthServiceGrpc.newFutureStub(authChannel);
 
             tokenChannel = ManagedChannelBuilder
                     .forAddress("token", 6969)
@@ -100,6 +116,7 @@ public class ApiServer {
                     .build();
             this.postStub = PostImporterServiceGrpc.newFutureStub(postChannel);
 
+            // This has to be blocking, because it returns a stream
             wallChannel = ManagedChannelBuilder
                     .forAddress("wall", 4698)
                     .usePlaintext()
@@ -115,20 +132,29 @@ public class ApiServer {
 
         @Override
         public void login(Auth request, StreamObserver<Token> responseObserver) {
+            Histogram.Timer t = ApiServer.requestDuration.labels("login").startTimer();
+
             Token token;
-            System.out.println("Submitting login request");
+            System.out.println("Logging in");
             try {
-                token = authStub.checkAuth(request);
+                token = authStub.checkAuth(request).get(100, TimeUnit.MILLISECONDS);
             } catch (StatusRuntimeException e) {
                 logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
                 responseObserver.onError(e);
+                t.close();
+                return;
+            } catch (TimeoutException e) {
+                responseObserver.onError(new RuntimeException("Timeout Occured"));
+                t.close();
+                return;
+            }  catch (InterruptedException|java.util.concurrent.ExecutionException e) {
+                responseObserver.onError(e);
+                t.close();
                 return;
             }
 
-//            String username = token.getUsername();
-//            String tok = token.getToken();
-
             responseObserver.onNext(token);
+            t.close();
             responseObserver.onCompleted();
         }
 
@@ -139,35 +165,58 @@ public class ApiServer {
                 - verify `username` with Auth service
                 - if valid, send to PostService.create_post, return response
              */
+            Histogram.Timer t = ApiServer.requestDuration.labels("post").startTimer();
+
             Token token = Token.newBuilder().setUsername(request.getUsername()).build();
+            System.out.println("Getting token");
             try {
-                token = tokenStub.checkToken(token).get();
+                token = tokenStub.checkToken(token).get(100, TimeUnit.MILLISECONDS);
             } catch (StatusRuntimeException e) {
                 logger.log(Level.WARNING, "Check Token RPC failed: {0}", e.getStatus());
                 responseObserver.onError(e);
+                t.close();
                 return;
-            } catch (InterruptedException|java.util.concurrent.ExecutionException e) {
+            } catch (TimeoutException e) {
+                logger.log(Level.WARNING, "Timeout: {0}", e.getMessage());
+                responseObserver.onError(new RuntimeException("Timeout Occured"));
+                t.close();
+                return;
+            } catch (InterruptedException | ExecutionException e) {
+                logger.log(Level.WARNING, "Unknown Exception: {0}", e.getMessage());
                 responseObserver.onError(e);
+                t.close();
                 return;
             }
 
-            if(token.getToken() == null) {
+            System.out.println("Validating token");
+            if (token.getToken() == null) {
                 responseObserver.onError(new Exception("Invalid Token"));
+                t.close();
                 return;
             }
 
+            System.out.println("Creating Post");
             try {
                 Empty post = postStub.createPost(request).get();
             } catch (StatusRuntimeException e) {
-                logger.log(Level.WARNING, "Create Post RPC failed: {0}", e.getStatus());
+                logger.log(Level.WARNING, "Create Post RPC failed: {0}", e.getMessage());
                 responseObserver.onError(e);
+                t.close();
                 return;
-            } catch (InterruptedException|java.util.concurrent.ExecutionException e) {
+//            } catch (TimeoutException e) {
+//                logger.log(Level.WARNING, "Timeout: {0}", e.getMessage());
+//                responseObserver.onError(new RuntimeException("Timeout Occured"));
+//                return;
+            } catch (InterruptedException | ExecutionException e) {
+                logger.log(Level.WARNING, "Unknown Exception: {0}", e.getMessage());
                 responseObserver.onError(e);
+                t.close();
                 return;
             }
 
             responseObserver.onNext(request);
+            t.close();
+
             responseObserver.onCompleted();
         }
 
@@ -176,7 +225,7 @@ public class ApiServer {
             Iterator<Post> posts;
             try {
                 System.out.println("Fetching wall");
-                posts = this.wallStub.withWaitForReady().fetch(request);
+                posts = this.wallStub.fetch(request);
 
                 // Forward all posts to user
                 while (posts.hasNext()) {
