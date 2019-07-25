@@ -13,11 +13,13 @@ import foobar.tokenizer.TokenDispenserServiceGrpc;
 import foobar.wall.WallQuery;
 import foobar.wall.WallServiceGrpc;
 import io.grpc.*;
+import io.grpc.netty.NettyServerBuilder;
 import io.grpc.stub.StreamObserver;
 import io.prometheus.client.Histogram;
 
 import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
@@ -28,7 +30,7 @@ public class ApiServer {
     private static final Logger logger = Logger.getLogger(ApiServer.class.getName());
 
     private Server server;
-    static final Histogram requestDuration = Histogram.build()
+    static private final Histogram requestDuration = Histogram.build()
             .name("request_duration_seconds").help("Request duration in seconds.").register();
 //    static final Histogram postLatency = Histogram.build()
 //            .name("post_duration_seconds").help("Post duration in seconds.").register();
@@ -36,7 +38,10 @@ public class ApiServer {
     private void start() throws IOException {
         /* The port on which the server should run */
         int port = 50051;
-        server = ServerBuilder.forPort(port)
+        // TODO: Measure with/without Netty
+        // https://groups.google.com/forum/#!topic/grpc-io/2uMTCA2D-x8
+
+        server = NettyServerBuilder.forPort(port)
                 .intercept(new ServerInterceptor() {
                     @Override
                     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
@@ -46,8 +51,23 @@ public class ApiServer {
                     }
                 })
                 .addService(new APILayerImpl())
+                .executor(ForkJoinPool.commonPool())
                 .build()
                 .start();
+
+//        server = ServerBuilder.forPort(port)
+//                .intercept(new ServerInterceptor() {
+//                    @Override
+//                    public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
+//                                                                                 ServerCallHandler<ReqT, RespT> next) {
+//                        call.setCompression("gzip");
+//                        return next.startCall(call, headers);
+//                    }
+//                })
+//                .addService(new APILayerImpl())
+//                .build()
+//                .start();
+
         logger.info("Server started, listening on " + port);
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
