@@ -8,6 +8,15 @@ services:
       - apilayer
       - auth
       - post_importer:postImporter
+ 
+  web_client:
+    build:
+        context: web_client
+    tty: true
+    links:
+      - apilayer
+    ports:
+      - "80:80"
 
   client:
     build:
