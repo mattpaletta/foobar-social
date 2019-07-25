@@ -12,6 +12,7 @@ services:
   web_client:
     build:
         context: web_client
+    stdin_open: true
     tty: true
     links:
       - apilayer
