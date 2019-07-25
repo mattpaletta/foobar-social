@@ -41,32 +41,32 @@ public class ApiServer {
         // TODO: Measure with/without Netty
         // https://groups.google.com/forum/#!topic/grpc-io/2uMTCA2D-x8
 
-        server = NettyServerBuilder.forPort(port)
-                .intercept(new ServerInterceptor() {
-                    @Override
-                    public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
-                                                                         ServerCallHandler<ReqT, RespT> next) {
-                        call.setCompression("gzip");
-                        return next.startCall(call, headers);
-                    }
-                })
-                .addService(new APILayerImpl())
-                .executor(ForkJoinPool.commonPool())
-                .build()
-                .start();
-
-//        server = ServerBuilder.forPort(port)
+//        server = NettyServerBuilder.forPort(port)
 //                .intercept(new ServerInterceptor() {
 //                    @Override
 //                    public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
-//                                                                                 ServerCallHandler<ReqT, RespT> next) {
+//                                                                         ServerCallHandler<ReqT, RespT> next) {
 //                        call.setCompression("gzip");
 //                        return next.startCall(call, headers);
 //                    }
 //                })
 //                .addService(new APILayerImpl())
+//                .executor(ForkJoinPool.commonPool())
 //                .build()
 //                .start();
+
+        server = ServerBuilder.forPort(port)
+                .intercept(new ServerInterceptor() {
+                    @Override
+                    public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
+                                                                                 ServerCallHandler<ReqT, RespT> next) {
+                        call.setCompression("gzip");
+                        return next.startCall(call, headers);
+                    }
+                })
+                .addService(new APILayerImpl())
+                .build()
+                .start();
 
         logger.info("Server started, listening on " + port);
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -152,7 +152,7 @@ public class ApiServer {
 
         @Override
         public void login(Auth request, StreamObserver<Token> responseObserver) {
-            Histogram.Timer t = ApiServer.requestDuration.labels("login").startTimer();
+//            Histogram.Timer t = ApiServer.requestDuration.labels("login").startTimer();
 
             Token token;
             System.out.println("Logging in");
@@ -161,20 +161,20 @@ public class ApiServer {
             } catch (StatusRuntimeException e) {
                 logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
                 responseObserver.onError(e);
-                t.close();
+//                t.close();
                 return;
             } catch (TimeoutException e) {
                 responseObserver.onError(new RuntimeException("Timeout Occured"));
-                t.close();
+//                t.close();
                 return;
             }  catch (InterruptedException|java.util.concurrent.ExecutionException e) {
                 responseObserver.onError(e);
-                t.close();
+//                t.close();
                 return;
             }
 
             responseObserver.onNext(token);
-            t.close();
+//            t.close();
             responseObserver.onCompleted();
         }
 
@@ -185,7 +185,7 @@ public class ApiServer {
                 - verify `username` with Auth service
                 - if valid, send to PostService.create_post, return response
              */
-            Histogram.Timer t = ApiServer.requestDuration.labels("post").startTimer();
+//            Histogram.Timer t = ApiServer.requestDuration.labels("post").startTimer();
 
             Token token = Token.newBuilder().setUsername(request.getUsername()).build();
             System.out.println("Getting token");
@@ -194,24 +194,24 @@ public class ApiServer {
             } catch (StatusRuntimeException e) {
                 logger.log(Level.WARNING, "Check Token RPC failed: {0}", e.getStatus());
                 responseObserver.onError(e);
-                t.close();
+//                t.close();
                 return;
             } catch (TimeoutException e) {
                 logger.log(Level.WARNING, "Timeout: {0}", e.getMessage());
                 responseObserver.onError(new RuntimeException("Timeout Occured"));
-                t.close();
+//                t.close();
                 return;
             } catch (InterruptedException | ExecutionException e) {
                 logger.log(Level.WARNING, "Unknown Exception: {0}", e.getMessage());
                 responseObserver.onError(e);
-                t.close();
+//                t.close();
                 return;
             }
 
             System.out.println("Validating token");
             if (token.getToken() == null) {
                 responseObserver.onError(new Exception("Invalid Token"));
-                t.close();
+//                t.close();
                 return;
             }
 
@@ -221,7 +221,7 @@ public class ApiServer {
             } catch (StatusRuntimeException e) {
                 logger.log(Level.WARNING, "Create Post RPC failed: {0}", e.getMessage());
                 responseObserver.onError(e);
-                t.close();
+//                t.close();
                 return;
 //            } catch (TimeoutException e) {
 //                logger.log(Level.WARNING, "Timeout: {0}", e.getMessage());
@@ -230,12 +230,12 @@ public class ApiServer {
             } catch (InterruptedException | ExecutionException e) {
                 logger.log(Level.WARNING, "Unknown Exception: {0}", e.getMessage());
                 responseObserver.onError(e);
-                t.close();
+//                t.close();
                 return;
             }
 
             responseObserver.onNext(request);
-            t.close();
+//            t.close();
 
             responseObserver.onCompleted();
         }

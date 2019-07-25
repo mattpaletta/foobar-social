@@ -154,7 +154,6 @@ if __name__ == "__main__":
                             break
                     end_time = time()
                     print_time_report(time = end_time - start_time, num = num_submitted)
-
                 else:
                     num_posts = int(num_posts)
 
@@ -185,7 +184,7 @@ if __name__ == "__main__":
                 # create a post
                 msg = input("Post: ")
                 p = Post(msg = msg, username = token.username)
-                post(p).result()
+                post(p, api).result()
         elif prompt == "help":
             print("Commands: [autologin, login, wall, news_feed, post, postrand, help]")
         else:

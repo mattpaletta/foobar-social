@@ -23,8 +23,7 @@ class FriendsService(FriendsServiceServicer):
                                                                           user = "docker",
                                                                           password = "password",
                                                                           host = "friendsdb",
-                                                                          port = "5432",
-                                                                          database = "friends_serv")
+                                                                          port = "5432")
                 if self.postgres_pool:
                     break
             except (Exception, psycopg2.DatabaseError) as error:
@@ -53,7 +52,7 @@ class FriendsService(FriendsServiceServicer):
         if postgres_pool_conn:
             ps_cursor = postgres_pool_conn.cursor()
 
-            ps_cursor.execute("SELECT friend FROM friends_db.friends WHERE username = '{0}';".format(request_username))
+            ps_cursor.execute("SELECT friend FROM friends WHERE username = '{0}';".format(request_username))
             ps_cursor.close()
             rows = ps_cursor.fetchall()
             self.postgres_pool.putconn(postgres_pool_conn)
@@ -82,7 +81,7 @@ class FriendsService(FriendsServiceServicer):
                 yield Friend()
                 return
 
-            ps_cursor.execute("SELECT friend FROM friends_db WHERE username = '{0}' ORDER BY added_date DESC LIMIT 10;".format(request_username))
+            ps_cursor.execute("SELECT friend FROM friends WHERE username = '{0}' ORDER BY added_date DESC LIMIT 10;".format(request_username))
             ps_cursor.close()
             rows = ps_cursor.fetchall()
             self.postgres_pool.putconn(postgres_pool_conn)
