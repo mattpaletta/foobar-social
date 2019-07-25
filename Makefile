@@ -3,6 +3,7 @@ PROTO_DIR := ./protos
 PYDIR := MY_DIR
 PYPROTOC := python3 -m grpc_tools.protoc -I./$(PROTO_DIR) --python_out=./MY_DIR/  --grpc_python_out=./MY_DIR/ --mypy_out=./MY_DIR
 SWIFTPROTOC := protoc -I ./$(PROTO_DIR) --swiftgrpc_out=./MY_DIR/Sources/MY_DIR/protos --swift_out=./MY_DIR/Sources/MY_DIR/protos
+PHPPROTOC := protoc -I ./$(PROTO_DIR) --plugin=protoc-gen-grpc=/home/jacob/.grpc/bins/grpc_php_plugin  --php_out=./MY_DIR/src/ --grpc_out=./MY_DIR/src/ 
 EXTRACT_IMPORTS := 's/^import\ "\([a-zA-Z]*.proto\)";/\1/p'
 EXTRACT_IMPORT_BASE := 's/^import\ "\([a-zA-Z]*\).proto";/\1/p'
 
@@ -37,6 +38,11 @@ endef
 define generate_protos_swift
 	$(call generate_protos,$1,$2,${SWIFTPROTOC})
 endef
+
+define generate_protos_PHP
+	$(call generate_protos,$1,$2,${PHPPROTOC})
+endef
+
 
 auth := $(call get_outputs,auth,auth)
 $(auth):
@@ -108,6 +114,12 @@ wall := $(call get_outputs,wall,wall)
 $(wall):
 	$(call generate_protos_py_unary,wall)
 wall: $(wall)
+
+web_client:
+	$(call generate_protos_PHP,apilayer,web_client)
+	$(call generate_protos_PHP,auth,web_client)
+	$(call generate_protos_PHP,posts,web_client)
+	$(call generate_protos_PHP,wall,web_client)
 
 tester: protos/*.proto
 	find protos -name "*.proto" -exec sh -c "python3 -m grpc_tools.protoc -I./protos --python_out=./tester/  --grpc_python_out=./tester/ --mypy_out=./tester {}" \;
