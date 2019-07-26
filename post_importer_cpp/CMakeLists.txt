@@ -8,7 +8,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/build/cmake/")
 set(PROTOBUF_IMPORT_DIRS "${CMAKE_SOURCE_DIR}/")
 
 include(build/cmake/redox.cmake)
-
 add_definitions(-DNDEBUG)
 
 find_package (Protobuf REQUIRED)
@@ -33,5 +32,5 @@ add_executable(post_importer
         post_importer.pb
         include/main.cpp)
 
-target_link_libraries(post_importer ${PROTOBUF_LIBRARIES} ${GRPC_LIBRARIES} redox::redox)
+target_link_libraries(post_importer ${PROTOBUF_LIBRARIES} ${GRPC_LIBRARIES})
 #target_link_libraries(news_feed Protobuf::protolib GRPC::grpc)
