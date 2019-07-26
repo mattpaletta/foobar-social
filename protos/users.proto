@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+//import "shared.proto";
+//import "profile.proto";
+import "user.proto";
+
+package foobar.users;
+
+service UsersService {
+    rpc create_user(user.User) returns (user.User) {};
+}

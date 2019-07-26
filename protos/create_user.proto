@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+import "user.proto";
+import "auth.proto";
+package foobar.create_user;
+
+option java_multiple_files = true;
+option java_package = "foobar.create_user";
+option java_outer_classname = "Create_User";
+
+message NewUser {
+    string username = 1;
+    string password = 2;
+}
+
+service CreateUserService {
+    rpc create_user(user.User) returns (auth.Token) {};
+}

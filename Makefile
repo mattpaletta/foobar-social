@@ -53,7 +53,12 @@ auth: $(auth)
 
 apilayer: $(PROTO_DIR)/*.proto
 	cp -r protos/ apilayer/src/main/proto
-
+create_user := $(call get_outputs,create_user,create_user)
+$(create_user):
+	$(call generate_protos_py_unary,create_user)
+	$(call generate_protos_py,token,create_user)
+	$(call generate_protos_py,users,create_user)
+create_user: $(create_user)
 client:
 	$(call generate_protos_py,apilayer,client)
 	$(call generate_protos_py,user,client)
@@ -117,6 +122,13 @@ $(token):
 	$(call generate_protos_py,token,token_dispenser)
 token: $(token)
 
+users := $(call get_outputs,users,users)
+$(users):
+	$(call generate_protos_py_unary,users)
+	$(call generate_protos_py,user,users)
+	$(call generate_protos_py,auth,users)
+users: $(users)
+
 user_setting := $(call get_outputs,user_setting,user_setting)
 $(user_setting):
 	$(call generate_protos_py_unary,user_setting)
@@ -139,4 +151,4 @@ tester: protos/*.proto
 clean:
 	rm -rf **/*_pb2.pyi **/*_pb2.py **/*_pb2_grpc.py **/*grpc.swift **/*pb.swift
 
-all: apilayer auth friends news_feed news_feed_merge news_feed_data_access post_importer posts profile token user_setting wall tester
+all: apilayer auth create_user friends news_feed news_feed_merge news_feed_data_access post_importer posts profile token  users user_setting wall tester
