@@ -6,6 +6,9 @@
 #include <iostream>
 #include <memory>
 
+//#include <redox/redox.hpp>
+#include "cppkafka/producer.h"
+
 #include "post_importer.grpc.pb.h"
 
 class PostImporterService final : public foobar::post_importer::PostImporterService::Service {
@@ -16,7 +19,7 @@ public:
 
     grpc::Status create_post(::grpc::ServerContext *context, const ::foobar::posts::Post *request,
                              ::foobar::shared::Empty *response) override {
-        
+
         return Service::create_post(context, request, response);
     }
 

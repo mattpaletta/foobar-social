@@ -33,6 +33,27 @@ RUN echo "-- installing grpc" && \
     cd /var/local/git/grpc && \
     make -j$(nproc) && make install && make clean && ldconfig
 
+RUN apt-get update && apt-get install -y libhiredis-dev libev-dev zlib1g-dev libssl-dev libsasl2-dev libzstd-dev libboost-all-dev
+
+ADD https://cmake.org/files/v3.9/cmake-3.9.2-Linux-x86_64.sh /cmake-3.9.2-Linux-x86_64.sh
+RUN mkdir /opt/cmake
+RUN sh /cmake-3.9.2-Linux-x86_64.sh --prefix=/opt/cmake --skip-license
+RUN ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake
+RUN cmake --version
+
+ENV LIBRDKAFKA_VERSION 0.11.4
+RUN curl -Lk -o /root/librdkafka-${LIBRDKAFKA_VERSION}.tar.gz https://github.com/edenhill/librdkafka/archive/v${LIBRDKAFKA_VERSION}.tar.gz && \
+      tar -xzf /root/librdkafka-${LIBRDKAFKA_VERSION}.tar.gz -C /root && \
+      cd /root/librdkafka-${LIBRDKAFKA_VERSION} && \
+      ./configure --prefix /usr && make && make install && make clean && ./configure --clean
+
+RUN git clone https://github.com/mfontanini/cppkafka && \
+    mkdir -p cppkafka/build && \
+    ls cppkafka && \
+    cd cppkafka/build && \
+    cmake .. && \
+    make install
+
 COPY . $BIN_BUILD_PATH/src/$BIN_NAME/
 
 RUN echo "-- building $BIN_NAME" && \
