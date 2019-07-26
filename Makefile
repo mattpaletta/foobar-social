@@ -67,7 +67,13 @@ friends: $(friends)
 
 news_feed := $(call get_outputs,news_feed,news_feed)
 $(news_feed):
-	$(call generate_protos_swift,news_feed,news_feed)
+	cp protos/news_feed.proto news_feed/news_feed.proto
+	cp protos/wall.proto news_feed/wall.proto
+	cp protos/posts.proto news_feed/posts.proto
+	cp protos/user.proto news_feed/user.proto
+	cp protos/shared.proto news_feed/shared.proto
+	cp protos/news_feed_data_access.proto news_feed/news_feed_data_access.proto
+
 news_feed: $(news_feed)
 
 news_feed_merge: friends profile news_feed_data_access
