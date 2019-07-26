@@ -1,0 +1,4 @@
+grpcio-tools
+grpcio
+mypy-protobuf
+psycopg2-binary
