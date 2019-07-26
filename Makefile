@@ -94,7 +94,13 @@ post_importer := $(call get_outputs,post_importer,post_importer)
 $(post_importer):
 	$(call generate_protos_swift,post_importer,post_importer)
 
-post_importer: $(post_importer)
+post_importer_cpp := $(call get_outputs,post_importer,post_importer)
+$(post_importer_cpp):
+	cp protos/post_importer.proto post_importer_cpp/
+	cp protos/posts.proto post_importer_cpp/
+	cp protos/shared.proto post_importer_cpp/
+
+post_importer: $(post_importer) $(post_importer_cpp)
 
 posts := $(call get_outputs,posts,posts)
 $(posts):

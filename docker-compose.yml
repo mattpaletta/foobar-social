@@ -96,7 +96,7 @@ services:
 
   post_importer:
     build:
-      context: post_importer
+      context: post_importer_cpp
     tty: true
     links:
       - post_importer_redis
