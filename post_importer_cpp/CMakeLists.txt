@@ -32,5 +32,5 @@ add_executable(post_importer
         post_importer.pb
         include/main.cpp)
 
-target_link_libraries(post_importer ${PROTOBUF_LIBRARIES} ${GRPC_LIBRARIES})
+target_link_libraries(post_importer ${PROTOBUF_LIBRARIES} ${GRPC_LIBRARIES})gi
 #target_link_libraries(news_feed Protobuf::protolib GRPC::grpc)
