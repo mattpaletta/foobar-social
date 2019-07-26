@@ -42,6 +42,17 @@ def print_wall(username: str, api: ApiLayerServiceStub):
         logging.error("error getting wall" + e)
 
 
+def print_news_feed(username: str, api: ApiLayerServiceStub):
+    pt = PrettyTable(["Username", "ID", "Datetime", "Msg"])
+    try:
+        wq = WallQuery(username = username, starting_id = 0)
+        for post in api.get_news_feed(wq):
+            pt.add_row([post.username, post.id, post.datetime, post.msg])
+        print(pt)
+    except Exception as e:
+        logging.error("error getting news feed" + e)
+
+
 def autologin() -> Token:
     try:
         token = login("student", "password", api)
@@ -136,7 +147,8 @@ if __name__ == "__main__":
 
         elif prompt == "news_feed":
             # Get the news feed
-            pass
+            print_news_feed(username = token.username, api = api)
+
         elif prompt == "postrand":
             if token.username in [None, ""]:
                 logging.error("Must login first")

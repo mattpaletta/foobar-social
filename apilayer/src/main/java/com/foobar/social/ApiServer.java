@@ -6,6 +6,7 @@ import foobar.apilayer.ApiLayerServiceGrpc;
 import foobar.auth.Auth;
 import foobar.auth.AuthServiceGrpc;
 import foobar.auth.Token;
+import foobar.news_feed.NewsFeedServiceGrpc;
 import foobar.post_importer.PostImporterServiceGrpc;
 import foobar.posts.Post;
 import foobar.shared.Empty;
@@ -108,7 +109,7 @@ public class ApiServer {
         private final AuthServiceGrpc.AuthServiceFutureStub authStub;
         private final TokenDispenserServiceGrpc.TokenDispenserServiceFutureStub tokenStub;
         private final PostImporterServiceGrpc.PostImporterServiceFutureStub postStub;
-//        private final NewsFeedServiceGrpc.NewsFeedServiceBlockingStub nfStub;
+        private final NewsFeedServiceGrpc.NewsFeedServiceBlockingStub nfStub;
         private final WallServiceGrpc.WallServiceBlockingStub wallStub;
 
         APILayerImpl() {
@@ -122,32 +123,32 @@ public class ApiServer {
                     .forAddress("auth", 2884)
                     .usePlaintext()
                     .build();
-            this.authStub = AuthServiceGrpc.newFutureStub(authChannel);
+            this.authStub = AuthServiceGrpc.newFutureStub(authChannel).withWaitForReady();
 
             tokenChannel = ManagedChannelBuilder
                     .forAddress("token", 6969)
                     .usePlaintext()
                     .build();
-            this.tokenStub = TokenDispenserServiceGrpc.newFutureStub(tokenChannel);
+            this.tokenStub = TokenDispenserServiceGrpc.newFutureStub(tokenChannel).withWaitForReady();
 
             postChannel = ManagedChannelBuilder
                     .forAddress("postImporter", 9000)
                     .usePlaintext()
                     .build();
-            this.postStub = PostImporterServiceGrpc.newFutureStub(postChannel);
+            this.postStub = PostImporterServiceGrpc.newFutureStub(postChannel).withWaitForReady();
 
             // This has to be blocking, because it returns a stream
             wallChannel = ManagedChannelBuilder
                     .forAddress("wall", 4698)
                     .usePlaintext()
                     .build();
-            this.wallStub = WallServiceGrpc.newBlockingStub(wallChannel);
+            this.wallStub = WallServiceGrpc.newBlockingStub(wallChannel).withWaitForReady();
 
-//            nfChannel = ManagedChannelBuilder
-//                    .forAddress("newsFeed", 9000)
-//                    .usePlaintext()
-//                    .build();
-//            this.nfStub = NewsFeedServiceGrpc.newBlockingStub(nfChannel).withWaitForReady();
+            nfChannel = ManagedChannelBuilder
+                    .forAddress("newsFeed", 9000)
+                    .usePlaintext()
+                    .build();
+            this.nfStub = NewsFeedServiceGrpc.newBlockingStub(nfChannel).withWaitForReady();
         }
 
         @Override
@@ -253,7 +254,8 @@ public class ApiServer {
                     responseObserver.onNext(nextPost);
                 }
             } catch (Exception e) {
-                System.err.println(e);
+                System.err.println(e.getMessage());
+                System.err.println(e.getStackTrace().toString());
             }
 
             responseObserver.onCompleted();
@@ -261,13 +263,21 @@ public class ApiServer {
 
         @Override
         public void getNewsFeed(WallQuery request, StreamObserver<Post> responseObserver) {
-//            Iterator<Post> posts = this.nfStub.getNewsFeed(request);
-//
-//            // Forward all posts to user
-//            while (posts.hasNext()) {
-//                Post nextPost = posts.next();
-//                responseObserver.onNext(nextPost);
-//            }
+            Iterator<Post> posts;
+            try {
+                System.out.println("Fetching news feed");
+                posts = this.nfStub.getNewsFeed(request);
+
+                // Forward all posts to user
+                while (posts.hasNext()) {
+                    Post nextPost = posts.next();
+                    responseObserver.onNext(nextPost);
+                }
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+                System.err.println(e.getStackTrace().toString());
+            }
+
             responseObserver.onCompleted();
         }
     }
