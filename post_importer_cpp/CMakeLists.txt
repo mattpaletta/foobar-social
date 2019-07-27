@@ -36,11 +36,12 @@ add_executable(post_importer
         shared.pb
         post_importer.grpc.pb
         post_importer.pb
-        include/main.cpp)
+        include/main.cpp
+        include/redox_helper.h)
 
-#FIND_LIBRARY(redox REQUIRED)
-#FIND_PACKAGE(Boost REQUIRED COMPONENTS program_options)
-find_package(CppKafka REQUIRED)
+FIND_LIBRARY(Redox REQUIRED)
+FIND_PACKAGE(Boost REQUIRED COMPONENTS program_options)
+FIND_PACKAGE(CppKafka REQUIRED)
 
-target_link_libraries(post_importer ${PROTOBUF_LIBRARIES} ${GRPC_LIBRARIES} CppKafka::cppkafka)
+target_link_libraries(post_importer ${PROTOBUF_LIBRARIES} ${GRPC_LIBRARIES} CppKafka::cppkafka redox)
 #target_link_libraries(news_feed Protobuf::protolib GRPC::grpc)
