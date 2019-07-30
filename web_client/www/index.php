@@ -5,7 +5,6 @@
 
 <?php include('test.php') ?>
 
-<?php phpinfo(); ?>
 
 
 </body>
