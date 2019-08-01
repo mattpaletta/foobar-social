@@ -144,7 +144,7 @@ web_client:
 	$(call generate_protos_PHP,auth,web_client)
 	$(call generate_protos_PHP,posts,web_client)
 	$(call generate_protos_PHP,wall,web_client)
-
+	$(call generate_protos_PHP,create_user,web_client)
 tester: protos/*.proto
 	find protos -name "*.proto" -exec sh -c "python3 -m grpc_tools.protoc -I./protos --python_out=./tester/  --grpc_python_out=./tester/ --mypy_out=./tester {}" \;
 

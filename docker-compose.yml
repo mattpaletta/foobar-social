@@ -26,6 +26,30 @@ services:
     links:
       - apilayer
 
+  create_user:
+    build:
+      context: create_user
+    tty: true
+    links:
+      - users
+    ports:
+     - 3001
+  
+  users:
+    build:
+      context: users
+    tty: true
+    links:
+            - users_db:usersdb
+    ports:
+      - 3002
+
+  users_db:
+    build:
+      context: users_db 
+    ports:
+      - 3003
+
   apilayer:
     build:
       context: apilayer
@@ -36,6 +60,7 @@ services:
       - post_importer:postImporter
       - news_feed:newsFeed
       - wall
+      - create_user:createUser
     expose:
       - 50051
 
@@ -96,7 +121,7 @@ services:
 
   post_importer:
     build:
-      context: post_importer_cpp
+      context: post_importer
     tty: true
     links:
       - post_importer_redis

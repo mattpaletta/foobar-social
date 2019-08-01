@@ -8,8 +8,6 @@ option java_outer_classname = "UserData";
 
 message User {
     string username = 1;
+    string password = 2;
 }
 
-message UserInfo {
-
-}

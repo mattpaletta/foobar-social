@@ -13,6 +13,8 @@ import foobar.shared.Empty;
 import foobar.tokenizer.TokenDispenserServiceGrpc;
 import foobar.wall.WallQuery;
 import foobar.wall.WallServiceGrpc;
+import foobar.user.User;
+import foobar.create_user.CreateUserServiceGrpc;
 import io.grpc.*;
 import io.grpc.netty.NettyServerBuilder;
 import io.grpc.stub.StreamObserver;
@@ -111,6 +113,7 @@ public class ApiServer {
         private final PostImporterServiceGrpc.PostImporterServiceFutureStub postStub;
         private final NewsFeedServiceGrpc.NewsFeedServiceBlockingStub nfStub;
         private final WallServiceGrpc.WallServiceBlockingStub wallStub;
+        private final CreateUserServiceGrpc.CreateUserServiceBlockingStub cuStub;
 
         APILayerImpl() {
             final ManagedChannel authChannel;
@@ -118,6 +121,7 @@ public class ApiServer {
             final ManagedChannel postChannel;
             final ManagedChannel wallChannel;
             final ManagedChannel nfChannel;
+            final ManagedChannel cuChannel;
 
             authChannel = ManagedChannelBuilder
                     .forAddress("auth", 2884)
@@ -136,6 +140,13 @@ public class ApiServer {
                     .usePlaintext()
                     .build();
             this.postStub = PostImporterServiceGrpc.newFutureStub(postChannel).withWaitForReady();
+
+	    cuChannel = ManagedChannelBuilder
+                    .forAddress("createUser", 3001)
+                    .usePlaintext()
+                    .build();
+            this.cuStub = CreateUserServiceGrpc.newFutureStub(cuChannel).withWaitForReady();
+
 
             // This has to be blocking, because it returns a stream
             wallChannel = ManagedChannelBuilder
@@ -280,5 +291,29 @@ public class ApiServer {
 
             responseObserver.onCompleted();
         }
+
+	@Override
+        public void createUser(Auth request, StreamObserver<Token> responseObserver) {
+
+            Token token;
+            System.out.println("Creating User");
+            try {
+                token = tokenStub.createToken(request).get(100, TimeUnit.MILLISECONDS);
+            } catch (StatusRuntimeException e) {
+                logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
+                responseObserver.onError(e);
+                return;
+            } catch (TimeoutException e) {
+                responseObserver.onError(new RuntimeException("Timeout Occured"));
+                return;
+            }  catch (InterruptedException|java.util.concurrent.ExecutionException e) {
+                responseObserver.onError(e);
+                return;
+            }
+
+            responseObserver.onNext(token);
+            responseObserver.onCompleted();
+        }
+
     }
 }

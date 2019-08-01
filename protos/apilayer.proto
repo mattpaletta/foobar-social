@@ -6,6 +6,7 @@ import "auth.proto";
 import "posts.proto";
 import "news_feed.proto";
 import "wall.proto";
+import "user.proto";
 
 package foobar.apilayer;
 
@@ -25,4 +26,7 @@ service ApiLayerService {
 
     // Timeline
     rpc get_news_feed(wall.WallQuery) returns (stream posts.Post) {};
+
+    // Create User
+    rpc create_user(user.User) returns (auth.Token) {};
 }
