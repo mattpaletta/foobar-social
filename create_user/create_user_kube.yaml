@@ -1,0 +1,41 @@
+#Create User Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: create-user
+spec:
+  ports:
+    - port: 3001
+  selector:
+    app: create_user
+  type: ClusterIP
+
+#Create User Deployment
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+ name: create-user
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: create_user
+    spec:
+      containers:
+        - createuser
+      image: foobar-social_create_user:latest
+      imagePullPolicy: Never
+      tty: True
+      ports:
+        - containerPort: 3001
+      resources:
+        requests:
+          cpu: "100m"
+          memory: "64Mi"
+        limits:
+          cpu: "100m"
+          memory: "128Mi"
+

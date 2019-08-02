@@ -1,0 +1,41 @@
+#News Feed Data Access Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: news-feed-data-access
+spec:
+  ports:
+    - port: 9000
+  selector:
+    app: news_feed_data_access
+  type: ClusterIP
+
+#News Feed Data Access Deployment
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+ name: news-feed-data-access
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: news_feed_data_access
+    spec:
+      containers:
+        - newsfeeddataaccess
+      image: foobar-social_news_feed_data_access:latest
+      imagePullPolicy: Never
+      tty: True
+      ports:
+        - containerPort: 9000
+      resources:
+        requests:
+          cpu: "100m"
+          memory: "64Mi"
+        limits:
+          cpu: "100m"
+          memory: "128Mi"
+

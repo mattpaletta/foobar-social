@@ -1,0 +1,41 @@
+#Web Client Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webclient
+spec:
+  ports:
+    - port: 80
+  selector:
+    app: web_client
+  type: LoadBalancer
+
+#Web Client Deployment
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+ name: webclient
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: web_client
+    spec:
+      containers:
+        - webclient
+      image: foobar-social_web_client:latest
+      imagePullPolicy: Never
+      tty: True
+      ports:
+        - containerPort: 80
+      resources:
+        requests:
+          cpu: "100m"
+          memory: "64Mi"
+        limits:
+          cpu: "100m"
+          memory: "512Mi"
+

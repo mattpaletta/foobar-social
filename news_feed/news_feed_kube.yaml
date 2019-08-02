@@ -1,0 +1,41 @@
+#News Feed Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: news-feed
+spec:
+  ports:
+    - port: 8080
+  selector:
+    app: news_feed
+  type: ClusterIP
+
+#News Feed Deployment
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+ name: news-feed
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: news_feed
+    spec:
+      containers:
+        - news-feed
+      image: foobar-social_news_feed:latest
+      imagePullPolicy: Never
+      tty: True
+      ports:
+        - containerPort: 8080
+      resources:
+        requests:
+          cpu: "100m"
+          memory: "64Mi"
+        limits:
+          cpu: "100m"
+          memory: "128Mi"
+

@@ -1,0 +1,41 @@
+#Friends_db Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: friends-db
+spec:
+  ports:
+    - port: 5432
+  selector:
+    app: friends_db_service
+  type: ClusterIP
+
+#Friends_db Deployment
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+ name: friendsdb
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: friends_db_service
+    spec:
+      containers:
+        - friends-db
+      image: foobar-social_friends_db:latest
+      imagePullPolicy: Never
+      tty: True
+      ports:
+        - containerPort: 5432
+      resources:
+        requests:
+          cpu: "100m"
+          memory: "64Mi"
+        limits:
+          cpu: "100m"
+          memory: "128Mi"
+
