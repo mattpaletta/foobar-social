@@ -9,7 +9,7 @@ python:
   - "3.6"
 
 env:
-  - AUTH=1
+#  - AUTH=1
   - COMPOSE=1
 
 before_install:
@@ -28,4 +28,4 @@ script:
   - if [ "$COMPOSE" == 1 ]; then docker-compose build; fi
   
   # Try and test each microservice
-  - if [ "$AUTH" == 1 ]; then  mypy auth --strict; fi
+#  - if [ "$AUTH" == 1 ]; then  mypy auth --strict; fi

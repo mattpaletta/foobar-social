@@ -26,15 +26,7 @@ struct Foobar_User_User {
 
   var username: String = String()
 
-  var unknownFields = SwiftProtobuf.UnknownStorage()
-
-  init() {}
-}
-
-struct Foobar_User_UserInfo {
-  // SwiftProtobuf.Message conformance is added in an extension below. See the
-  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
-  // methods supported on all messages.
+  var password: String = String()
 
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
@@ -49,12 +41,14 @@ extension Foobar_User_User: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
   static let protoMessageName: String = _protobuf_package + ".User"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     1: .same(proto: "username"),
+    2: .same(proto: "password"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
       switch fieldNumber {
       case 1: try decoder.decodeSingularStringField(value: &self.username)
+      case 2: try decoder.decodeSingularStringField(value: &self.password)
       default: break
       }
     }
@@ -64,30 +58,15 @@ extension Foobar_User_User: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
     if !self.username.isEmpty {
       try visitor.visitSingularStringField(value: self.username, fieldNumber: 1)
     }
+    if !self.password.isEmpty {
+      try visitor.visitSingularStringField(value: self.password, fieldNumber: 2)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
   static func ==(lhs: Foobar_User_User, rhs: Foobar_User_User) -> Bool {
     if lhs.username != rhs.username {return false}
-    if lhs.unknownFields != rhs.unknownFields {return false}
-    return true
-  }
-}
-
-extension Foobar_User_UserInfo: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = _protobuf_package + ".UserInfo"
-  static let _protobuf_nameMap = SwiftProtobuf._NameMap()
-
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
-    while let _ = try decoder.nextFieldNumber() {
-    }
-  }
-
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    try unknownFields.traverse(visitor: &visitor)
-  }
-
-  static func ==(lhs: Foobar_User_UserInfo, rhs: Foobar_User_UserInfo) -> Bool {
+    if lhs.password != rhs.password {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

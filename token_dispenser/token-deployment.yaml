@@ -1,41 +1,25 @@
-#Friends Service
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: friends
-spec:
-  ports:
-    - port: 2885
-  selector:
-    app: friends_service
-  type: ClusterIP
-
-#Friends Deployment
----
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
- name: friends
+  name: token-dispenser
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: friends_service
+        app: token_dispenser
     spec:
       containers:
-        - name: friends
-          image: foobar-social_friends:latest
+        - name: tokendispenser
+          image: foobar-social_token_dispenser:latest
           imagePullPolicy: Never
           tty: True
           ports:
-            - containerPort: 2885
+            - containerPort: 6969
           resources:
             requests:
               cpu: "100m"
               memory: "64Mi"
             limits:
-              cpu: "100m"
+              cpu: "500m"
               memory: "128Mi"
-

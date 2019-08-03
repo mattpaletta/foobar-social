@@ -1,0 +1,82 @@
+# Wall Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wall
+spec:
+  ports:
+    - port: 4698
+  selector:
+    app: wall
+  type: ClusterIP
+
+# Wall Deployment
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: wall
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: wall
+    spec:
+      containers:
+        - name: wall
+          image: foobar-social_wall:latest
+          imagePullPolicy: Never
+          tty: True
+          ports:
+            - containerPort: 4698
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "500m"
+              memory: "128Mi"
+
+
+# Wall Postgres Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: walldb
+spec:
+  ports:
+    - port: 5432
+  selector:
+    app: wall_db
+  type: ClusterIP
+
+# Wall Postgres Deployment
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: walldb
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: wall_db
+    spec:
+      containers:
+        - name: walldb
+          image: foobar-social_wall_postgres:latest
+          imagePullPolicy: Never
+          tty: True
+          ports:
+            - containerPort: 5432
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "500m"
+              memory: "128Mi"

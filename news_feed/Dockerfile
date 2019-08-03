@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y \
   unzip \
   && apt-get clean
 
-ENV GRPC_RELEASE_TAG v1.16.0
+ENV GRPC_RELEASE_TAG v1.22.0
 ENV NEWS_FEED_BUILD_PATH /usr/local/news_feed
 
 RUN git clone -b ${GRPC_RELEASE_TAG} https://github.com/grpc/grpc /var/local/git/grpc && \

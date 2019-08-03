@@ -65,6 +65,9 @@ client:
 	$(call generate_protos_py,shared,client)
 	docker-compose up --build -d client && docker run -it --rm --net foobar-social_default foobar-social_client:latest
 
+local_client:
+	docker-compose build client && docker run -it --rm --net host foobar-social_client:latest
+
 friends := $(call get_outputs,friends,friends)
 $(friends):
 	$(call generate_protos_py_unary,friends)
@@ -86,6 +89,7 @@ news_feed_merge: friends profile news_feed_data_access
 	$(call generate_protos_swift,profile,news_feed_merge)
 	$(call generate_protos_swift,wall,news_feed_merge)
 	$(call generate_protos_swift,posts,news_feed_merge)
+	$(call generate_protos_swift,user_setting,news_feed_merge)
 	$(call generate_protos_swift,news_feed_data_access,news_feed_merge)
 
 news_feed_data_access := $(call get_outputs,news_feed_data_access,news_feed_data_access)

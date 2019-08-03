@@ -68,6 +68,21 @@ RUN git clone https://github.com/mfontanini/cppkafka && \
     make install
 
 ###################################
+# Install PB2JSON + Deps
+###################################
+# ENV JANSSON_VERSION 2.11
+# RUN curl -o jansson-${JANSSON_VERSION}.tar.gz http://www.digip.org/jansson/releases/jansson-${JANSSON_VERSION}.tar.gz && \
+#     tar -zxf jansson-${JANSSON_VERSION}.tar.gz && \
+#     cd jansson-${JANSSON_VERSION} && \
+#     ./configure && \
+#     make install
+#
+# RUN git clone https://github.com/shafreeck/pb2json.git && \
+#     cd pb2json && \
+#     make && \
+#     make install
+
+###################################
 # Install Redox (cpp redis client)
 ###################################
 RUN git clone https://github.com/hmartiro/redox.git && \

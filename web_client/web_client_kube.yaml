@@ -25,17 +25,16 @@ spec:
         app: web_client
     spec:
       containers:
-        - webclient
-      image: foobar-social_web_client:latest
-      imagePullPolicy: Never
-      tty: True
-      ports:
-        - containerPort: 80
-      resources:
-        requests:
-          cpu: "100m"
-          memory: "64Mi"
-        limits:
-          cpu: "100m"
-          memory: "512Mi"
-
+        - name: webclient
+          image: foobar-social_web_client:latest
+          imagePullPolicy: Never
+          tty: True
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "100m"
+              memory: "512Mi"

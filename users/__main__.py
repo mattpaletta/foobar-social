@@ -55,10 +55,9 @@ class UsersService(UsersServiceServicer):
             with postgres_pool_conn.cursor() as ps_cursor:
 
                 ps_cursor.execute("INSERT INTO users(username) VALUES ('{0}');".format(request_username))
-                conn.commit()
+                postgres_pool_conn.commit()
 
             self.postgres_pool.putconn(postgres_pool_conn)
-
 
             return Auth(username = request_username, password = "")
         else:
@@ -83,6 +82,7 @@ if __name__ == "__main__":
     server = grpc.server(futures.ThreadPoolExecutor(max_workers = 4))
     add_UsersServiceServicer_to_server(servicer = UsersService(), server = server)
     server.add_insecure_port('[::]:{0}'.format(users_port))
+    print("Started users")
     server.start()
     while True:
         sleep(1000)

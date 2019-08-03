@@ -1,41 +1,40 @@
-#Friends_db Service
+# Profile Service
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: friendsdb
+  name: profile
 spec:
   ports:
-    - port: 5432
+    - port: 2885
   selector:
-    app: friends_db_service
+    app: profile
   type: ClusterIP
 
-#Friends_db Deployment
+# Profile Deployment
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
- name: friendsdb
+  name: profile
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: friends_db_service
+        app: profile
     spec:
       containers:
-        - name: friends-db
-          image: foobar-social_friends_postgres:latest
+        - name: profile
+          image: foobar-social_profile:latest
           imagePullPolicy: Never
           tty: True
           ports:
-            - containerPort: 5432
+            - containerPort: 2885
           resources:
             requests:
               cpu: "100m"
               memory: "64Mi"
             limits:
-              cpu: "100m"
+              cpu: "500m"
               memory: "128Mi"
-

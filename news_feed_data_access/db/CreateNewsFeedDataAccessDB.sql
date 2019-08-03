@@ -1,7 +1,7 @@
 CREATE SCHEMA IF NOT EXISTS news_feed_data_access;
 
-DROP ROLE IF EXISTS docker;
-CREATE ROLE docker LOGIN PASSWORD 'password';
+-- DROP ROLE IF EXISTS docker;
+-- CREATE ROLE docker LOGIN PASSWORD 'password';
 
 -- DO
 -- $body$
@@ -17,14 +17,14 @@ CREATE ROLE docker LOGIN PASSWORD 'password';
 
 -- GRANT ALL PRIVILEGES ON SCHEMA news_feed_data_access TO docker;
 
-CREATE DATABASE news_feed_data_access_serv WITH OWNER docker;
+-- CREATE DATABASE news_feed_data_access_serv WITH OWNER docker;
 
-CREATE SEQUENCE IF NOT EXISTS news_feed_data_access.nf_seq;
+CREATE SEQUENCE IF NOT EXISTS nf_seq;
 
 -- TODO: add table sharding based on range of datetime and username
-CREATE TABLE IF NOT EXISTS news_feed_data_access.nf_posts (
+CREATE TABLE IF NOT EXISTS nf_posts (
 	-- The nf_post_id is incrementing, so that gives us an order
-	nf_post_id BIGINT NOT NULL DEFAULT NEXTVAL ('news_feed_data_access.nf_seq'),
+	nf_post_id BIGINT NOT NULL DEFAULT NEXTVAL ('nf_seq'),
 	post_id BIGINT NOT NULL,
 	datetime TIMESTAMP(0) DEFAULT CURRENT_TIMESTAMP,
 	-- store whose news feed are we using

@@ -9,7 +9,7 @@ from token_pb2_grpc import add_TokenDispenserServiceServicer_to_server
 from token_pb2_grpc import TokenDispenserServiceServicer
 from auth_pb2 import Auth, Token
 
-host = "token_dispenser_redis"
+host = "token-dispenser-redis"
 port = 6379
 ONE_HOUR = 3600
 
@@ -55,9 +55,11 @@ class TokenService(TokenDispenserServiceServicer):
 
 if __name__ == "__main__":
     token_port = 6969
+    print("Staring token dispenser")
     server = grpc.server(futures.ThreadPoolExecutor(max_workers = 4))
     add_TokenDispenserServiceServicer_to_server(servicer = TokenService(), server = server)
     server.add_insecure_port('[::]:{0}'.format(token_port))
+    print("Starting token dispenser")
     server.start()
     while True:
         sleep(1000)

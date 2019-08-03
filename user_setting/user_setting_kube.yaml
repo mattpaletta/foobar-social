@@ -1,0 +1,82 @@
+# User Settings Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-setting
+spec:
+  ports:
+    - port: 2884
+  selector:
+    app: user_setting
+  type: ClusterIP
+
+# User Settings Deployment
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: user-setting
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: user_setting
+    spec:
+      containers:
+        - name: usersetting
+          image: foobar-social_user_settings:latest
+          imagePullPolicy: Never
+          tty: True
+          ports:
+            - containerPort: 2884
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "500m"
+              memory: "128Mi"
+
+
+# User Settings Postgres Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: usersettingdb
+spec:
+  ports:
+    - port: 5432
+  selector:
+    app: user_setting_db
+  type: ClusterIP
+
+# User Settings Postgres Deployment
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: usersettingdb
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: user_setting_db
+    spec:
+      containers:
+        - name: usersettingdb
+          image: foobar-social_user_settings_postgres:latest
+          imagePullPolicy: Never
+          tty: True
+          ports:
+            - containerPort: 5432
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "500m"
+              memory: "128Mi"

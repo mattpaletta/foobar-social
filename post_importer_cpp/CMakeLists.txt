@@ -40,6 +40,10 @@ add_executable(post_importer
         include/redox_helper.h)
 
 FIND_LIBRARY(Redox REQUIRED)
+#find_library(hiredis REQUIRED)
+#find_library(libev REQUIRED)
+#FIND_LIBRARY(pb2json REQUIRED)
+
 FIND_PACKAGE(Boost REQUIRED COMPONENTS program_options)
 FIND_PACKAGE(CppKafka REQUIRED)
 

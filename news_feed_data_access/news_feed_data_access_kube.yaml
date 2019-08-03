@@ -1,4 +1,4 @@
-#News Feed Data Access Service
+# News Feed Data Access Service
 ---
 apiVersion: v1
 kind: Service
@@ -11,7 +11,7 @@ spec:
     app: news_feed_data_access
   type: ClusterIP
 
-#News Feed Data Access Deployment
+# News Feed Data Access Deployment
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -25,17 +25,97 @@ spec:
         app: news_feed_data_access
     spec:
       containers:
-        - newsfeeddataaccess
-      image: foobar-social_news_feed_data_access:latest
-      imagePullPolicy: Never
-      tty: True
-      ports:
-        - containerPort: 9000
-      resources:
-        requests:
-          cpu: "100m"
-          memory: "64Mi"
-        limits:
-          cpu: "100m"
-          memory: "128Mi"
+        - name: newsfeeddataaccess
+          image: foobar-social_news_feed_data_access:latest
+          imagePullPolicy: Never
+          tty: True
+          ports:
+            - containerPort: 9000
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "100m"
+              memory: "128Mi"
 
+
+# News Feed Data Access Postgres Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: news-feed-data-access-postgres
+spec:
+  ports:
+    - port: 5432
+  selector:
+    app: news_feed_data_access_postgres
+  type: ClusterIP
+
+# News Feed Data Access Postgres Deployment
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: news-feed-data-access-postgres
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: news_feed_data_access_postgres
+    spec:
+      containers:
+        - name: newsfeeddataaccesspostgres
+          image: foobar-social_news_feed_data_access_postgres:latest
+          imagePullPolicy: Never
+          tty: True
+          ports:
+            - containerPort: 5432
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "500m"
+              memory: "128Mi"
+
+# News Feed Data Access Redis Deployment
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: news-feed-data-access-redis
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: news_feed_data_access_redis
+    spec:
+      containers:
+        - name: newsfeeddataaccessredis
+          image: redis:alpine
+          ports:
+            - containerPort: 6379
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "100m"
+              memory: "512Mi"
+
+# News Feed Data Access Redis Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: news-feed-data-access-redis
+spec:
+  ports:
+    - port: 6379
+  selector:
+    app: news_feed_data_access_redis
+  type: ClusterIP

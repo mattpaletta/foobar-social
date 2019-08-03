@@ -7,8 +7,7 @@
 #include <memory>
 #include <cstdlib>
 
-//#include <redox/redox.hpp>
-#include "cppkafka/producer.h"
+//#include "cppkafka/producer.h"
 
 #include "post_importer.grpc.pb.h"
 #include "redox_helper.h"
@@ -53,7 +52,9 @@ public:
         const auto seconds = std::chrono::duration_cast<std::chrono::seconds>(epoch);
         post.set_datetime(seconds.count());
 
-        
+        // TODO: Turn post into json
+        // TODO: Push json-post to redis
+
 
         return grpc::Status::OK;
     }

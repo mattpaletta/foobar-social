@@ -1,0 +1,82 @@
+# User Settings Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: users
+spec:
+  ports:
+    - port: 2884
+  selector:
+    app: users
+  type: ClusterIP
+
+# User Settings Deployment
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: users
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: users
+    spec:
+      containers:
+        - name: users
+          image: foobar-social_users:latest
+          imagePullPolicy: Never
+          tty: True
+          ports:
+            - containerPort: 2884
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "500m"
+              memory: "128Mi"
+
+
+# User Settings Postgres Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: usersdb
+spec:
+  ports:
+    - port: 5432
+  selector:
+    app: users_db
+  type: ClusterIP
+
+# User Settings Postgres Deployment
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: usersdb
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: users_db
+    spec:
+      containers:
+        - name: usersdb
+          image: foobar-social_users_db:latest
+          imagePullPolicy: Never
+          tty: True
+          ports:
+            - containerPort: 5432
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "500m"
+              memory: "128Mi"

@@ -104,10 +104,12 @@ class UserSettingService(UserSettingServiceServicer):
 
 
 if __name__ == "__main__":
+    logging.getLogger().setLevel(logging.INFO)
     auth_port = 2884
     server = grpc.server(futures.ThreadPoolExecutor(max_workers = 4))
     add_UserSettingServiceServicer_to_server(servicer = UserSettingService(), server = server)
     server.add_insecure_port('[::]:{0}'.format(auth_port))
+    print("Started User Settings")
     server.start()
     while True:
         sleep(1000)

@@ -7,9 +7,11 @@ We started a `f1-micro (1 vCPU, 0.6 GB memory)` instance with ubuntu 18.04 LTS w
 https://phoenixnap.com/kb/how-to-install-docker-on-ubuntu-18-04
 
 * Install minikube:
-```{bash}
+```bash
 curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 \
   && chmod +x minikube
 sudo install minikube /usr/local/bin
 sudo minikube start --vm-driver=none
 ```
+
+To update images, run `deploy_to_docker_hub.sh` - and change the tag name in the script.

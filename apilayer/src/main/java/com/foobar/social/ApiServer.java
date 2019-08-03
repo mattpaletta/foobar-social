@@ -113,7 +113,7 @@ public class ApiServer {
         private final PostImporterServiceGrpc.PostImporterServiceFutureStub postStub;
         private final NewsFeedServiceGrpc.NewsFeedServiceBlockingStub nfStub;
         private final WallServiceGrpc.WallServiceBlockingStub wallStub;
-        private final CreateUserServiceGrpc.CreateUserServiceBlockingStub cuStub;
+        private final CreateUserServiceGrpc.CreateUserServiceFutureStub cuStub;
 
         APILayerImpl() {
             final ManagedChannel authChannel;
@@ -122,31 +122,35 @@ public class ApiServer {
             final ManagedChannel wallChannel;
             final ManagedChannel nfChannel;
             final ManagedChannel cuChannel;
+            logger.info("Connecting to all services...");
 
             authChannel = ManagedChannelBuilder
                     .forAddress("auth", 2884)
                     .usePlaintext()
                     .build();
             this.authStub = AuthServiceGrpc.newFutureStub(authChannel).withWaitForReady();
+            logger.info("Connected to Auth");
 
             tokenChannel = ManagedChannelBuilder
-                    .forAddress("token", 6969)
+                    .forAddress("token-dispenser", 6969)
                     .usePlaintext()
                     .build();
             this.tokenStub = TokenDispenserServiceGrpc.newFutureStub(tokenChannel).withWaitForReady();
+            logger.info("Connected to Token Dispenser");
 
             postChannel = ManagedChannelBuilder
-                    .forAddress("postImporter", 9000)
+                    .forAddress("post-importer", 9000)
                     .usePlaintext()
                     .build();
             this.postStub = PostImporterServiceGrpc.newFutureStub(postChannel).withWaitForReady();
+            logger.info("Connected to Post Importer");
 
-	    cuChannel = ManagedChannelBuilder
-                    .forAddress("createUser", 3001)
+	        cuChannel = ManagedChannelBuilder
+                    .forAddress("create-user", 3001)
                     .usePlaintext()
                     .build();
             this.cuStub = CreateUserServiceGrpc.newFutureStub(cuChannel).withWaitForReady();
-
+            logger.info("Connected to Create User");
 
             // This has to be blocking, because it returns a stream
             wallChannel = ManagedChannelBuilder
@@ -154,20 +158,22 @@ public class ApiServer {
                     .usePlaintext()
                     .build();
             this.wallStub = WallServiceGrpc.newBlockingStub(wallChannel).withWaitForReady();
+            logger.info("Connected to Wall");
 
             nfChannel = ManagedChannelBuilder
-                    .forAddress("newsFeed", 9000)
+                    .forAddress("news-feed", 9000)
                     .usePlaintext()
                     .build();
             this.nfStub = NewsFeedServiceGrpc.newBlockingStub(nfChannel).withWaitForReady();
+            logger.info("Connected to News Feed");
+            logger.info("Connected to all services, listening.");
         }
 
         @Override
         public void login(Auth request, StreamObserver<Token> responseObserver) {
 //            Histogram.Timer t = ApiServer.requestDuration.labels("login").startTimer();
-
             Token token;
-            System.out.println("Logging in");
+            logger.info("Logging in");
             try {
                 token = authStub.checkAuth(request).get(100, TimeUnit.MILLISECONDS);
             } catch (StatusRuntimeException e) {
@@ -292,7 +298,7 @@ public class ApiServer {
             responseObserver.onCompleted();
         }
 
-	@Override
+	    @Override
         public void createUser(Auth request, StreamObserver<Token> responseObserver) {
 
             Token token;
@@ -314,6 +320,5 @@ public class ApiServer {
             responseObserver.onNext(token);
             responseObserver.onCompleted();
         }
-
     }
 }

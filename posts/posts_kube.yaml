@@ -1,0 +1,82 @@
+# Posts Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: posts
+spec:
+  ports:
+    - port: 2885
+  selector:
+    app: posts
+  type: ClusterIP
+
+# Posts Deployment
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: posts
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: posts
+    spec:
+      containers:
+        - name: posts
+          image: foobar-social_posts:latest
+          imagePullPolicy: Never
+          tty: True
+          ports:
+            - containerPort: 2885
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "500m"
+              memory: "128Mi"
+
+
+# Posts Postgres Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postsdb
+spec:
+  ports:
+    - port: 5432
+  selector:
+    app: posts_db
+  type: ClusterIP
+
+# Posts Postgres Deployment
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: postsdb
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: posts_db
+    spec:
+      containers:
+        - name: postsdb
+          image: foobar-social_posts_postgres:latest
+          imagePullPolicy: Never
+          tty: True
+          ports:
+            - containerPort: 5432
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "500m"
+              memory: "128Mi"

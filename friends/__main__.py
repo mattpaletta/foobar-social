@@ -23,7 +23,8 @@ class FriendsService(FriendsServiceServicer):
                                                                           user = "docker",
                                                                           password = "password",
                                                                           host = "friendsdb",
-                                                                          port = "5432")
+                                                                          port = "5432",
+                                                                          database = "friends")
                 if self.postgres_pool:
                     break
             except (Exception, psycopg2.DatabaseError) as error:

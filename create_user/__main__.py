@@ -13,7 +13,7 @@ class CreateUserService(CreateUserServiceServicer):
     def __init__(self) -> None:
         #TODO: Handle hosts through Docker or JSON
 
-        self.token_channel = grpc.insecure_channel('tokendispenser:6969')
+        self.token_channel = grpc.insecure_channel('token-dispenser:6969')
         self.token_stub = TokenDispenserServiceStub(self.token_channel)
 
         try:
@@ -22,7 +22,7 @@ class CreateUserService(CreateUserServiceServicer):
             print("Failed to connect to token_dispenser")
             exit(1)
 
-        self.users_channel = grpc.insecure_channel('users:4477')
+        self.users_channel = grpc.insecure_channel('users:2884')
         self.users_stub = UsersServiceStub(self.users_channel)
         try:
             grpc.channel_ready_future(self.users_channel).result(timeout = 20)
@@ -50,7 +50,7 @@ if __name__ == "__main__":
     server = grpc.server(futures.ThreadPoolExecutor(max_workers = 4))
     add_CreateUserServiceServicer_to_server(servicer = CreateUserService(), server = server)
     server.add_insecure_port('[::]:{0}'.format(users_port))
-    print("Starting Users Server")
+    print("Starting Create Users Server")
     server.start()
     while True:
         sleep(1000)

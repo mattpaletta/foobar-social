@@ -1,0 +1,39 @@
+# News Feed Deployment
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: news-feed-merge
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: news_feed_merge
+    spec:
+      containers:
+        - name: newsfeedmerge
+          image: foobar-social_news_feed_merge:latest
+          imagePullPolicy: Never
+          tty: True
+          env:
+            - name: IMPORT_QUEUE
+              value: "post_import"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "500m"
+              memory: "128Mi"
+
+# News Feed Merge Service
+#---
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  name: news-feed-merge
+#spec:
+#  selector:
+#    app: news-feed-merge
+#  type: ClusterIP

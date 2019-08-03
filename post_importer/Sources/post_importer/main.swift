@@ -129,7 +129,7 @@ class PostImporter : Foobar_PostImporter_PostImporterServiceProvider {
 }
 
 gRPC.initialize()
-let inst = PostImporter(redis: Connection(host: "post_importer_redis", port: 6379))
+let inst = PostImporter(redis: Connection(host: "post-importer-redis", port: 6379))
 let address = "0.0.0.0:9000"
 print("Starting server in \(address)")
 let server = ServiceServer(address: address,

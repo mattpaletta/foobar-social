@@ -28,5 +28,5 @@ service ApiLayerService {
     rpc get_news_feed(wall.WallQuery) returns (stream posts.Post) {};
 
     // Create User
-    rpc create_user(user.User) returns (auth.Token) {};
+    rpc create_user(auth.Auth) returns (auth.Token) {};
 }

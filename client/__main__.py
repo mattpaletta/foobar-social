@@ -13,11 +13,14 @@ from auth_pb2 import Token, Auth
 from posts_pb2 import Post
 from wall_pb2 import WallQuery
 
+apilayer_hostname = "localhost:30727"
+
 
 def login(username: str, password: str, api: ApiLayerServiceStub) -> Token:
     try:
         auth = Auth(username = username,
                     password = password)
+        logging.info("Sending Login")
         token = api.login(auth)
         return token
     except Exception as e:
@@ -71,7 +74,7 @@ def print_time_report(time: float, num: int):
 def submit_posts(sentence: str):
     # logging.getLogger().setLevel(logging.INFO)
 
-    apilayer_channel = grpc.insecure_channel('apilayer:50051')
+    apilayer_channel = grpc.insecure_channel(apilayer_hostname)
     api = ApiLayerServiceStub(channel = apilayer_channel)
 
     grpc.channel_ready_future(apilayer_channel).result()
@@ -100,7 +103,7 @@ def load_login(x: int):
     # gen = DocumentGenerator()
 
     logging.info("Connecting to Api Layer")
-    apilayer_channel = grpc.insecure_channel('apilayer:50051')
+    apilayer_channel = grpc.insecure_channel(apilayer_hostname)
     api = ApiLayerServiceStub(channel = apilayer_channel)
 
     grpc.channel_ready_future(apilayer_channel).result()
@@ -122,7 +125,7 @@ if __name__ == "__main__":
     gen = DocumentGenerator()
 
     logging.info("Connecting to Api Layer")
-    apilayer_channel = grpc.insecure_channel('apilayer:50051')
+    apilayer_channel = grpc.insecure_channel(apilayer_hostname)
     api = ApiLayerServiceStub(channel = apilayer_channel)
 
     grpc.channel_ready_future(apilayer_channel).result()

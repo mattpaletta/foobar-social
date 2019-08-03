@@ -43,7 +43,7 @@ class NewsFeedMerge {
         }
         
         self.friends = Foobar_Friends_FriendsServiceServiceClient(address: "friends:2885", secure: false, arguments: [])
-        self.news_feed_data_access = Foobar_NewsFeedDataAccess_NewsFeedDataAccessServiceServiceClient(address: "news_feed_data_access:9000", secure: false, arguments: [])
+        self.news_feed_data_access = Foobar_NewsFeedDataAccess_NewsFeedDataAccessServiceServiceClient(address: "news-feed-data-access:9000", secure: false, arguments: [])
         self.wall = Foobar_Wall_WallServiceServiceClient(address: "wall:4698", secure: false, arguments: [])
         self.posts = Foobar_Posts_PostServiceServiceClient(address: "posts:2885", secure: false, arguments: [])
         self.connect()
@@ -186,7 +186,7 @@ print("Starting \(num_servers) servers")
 
 for _ in 0 ..< num_servers {
     DispatchQueue.global(qos: .default).async {
-        let server = NewsFeedMerge(redis: Connection(host: "post_importer_redis", port: 6379))
+        let server = NewsFeedMerge(redis: Connection(host: "post-importer-redis", port: 6379))
         server.start()
     }
 }

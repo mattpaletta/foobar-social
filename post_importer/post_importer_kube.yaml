@@ -1,0 +1,85 @@
+# Post Importer Deployment
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: post-importer
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: post_importer
+    spec:
+      containers:
+        - name: postimporter
+          image: foobar-social_post_importer:latest
+          imagePullPolicy: Never
+          tty: True
+          env:
+            - name: IMPORT_QUEUE
+              value: "post_import"
+            - name: POST_INCREMENT_KEY
+              value: "global_post_id"
+          ports:
+            - containerPort: 9000
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "500m"
+              memory: "128Mi"
+
+# Post Importer Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: post-importer
+spec:
+  ports:
+    - port: 9000
+  selector:
+    app: post_importer
+  type: ClusterIP
+
+
+# Post Importer Redis Deployment
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: post-importer-redis
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: post_importer_redis
+    spec:
+      containers:
+        - name: postimporterredis
+          image: redis:alpine
+          ports:
+            - containerPort: 6379
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+# Post Importer Redis Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: post-importer-redis
+spec:
+  ports:
+    - port: 6379
+  selector:
+    app: post_importer_redis
+  type: ClusterIP

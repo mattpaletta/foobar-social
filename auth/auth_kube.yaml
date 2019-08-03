@@ -1,41 +1,42 @@
-#Friends Service
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: friends
-spec:
-  ports:
-    - port: 2885
-  selector:
-    app: friends_service
-  type: ClusterIP
-
-#Friends Deployment
+# Auth Deployment
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
- name: friends
+  name: auth
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: friends_service
+        app: auth_service
+        tier: auth
     spec:
       containers:
-        - name: friends
-          image: foobar-social_friends:latest
+        - name: auth
+          image: foobar-social_auth:latest
           imagePullPolicy: Never
           tty: True
           ports:
-            - containerPort: 2885
+            - containerPort: 2884
           resources:
             requests:
               cpu: "100m"
               memory: "64Mi"
             limits:
-              cpu: "100m"
+              cpu: "500m"
               memory: "128Mi"
 
+# Auth Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth
+spec:
+  ports:
+    - port: 2884
+  selector:
+    app: auth_service
+    tier: auth
+  type: ClusterIP

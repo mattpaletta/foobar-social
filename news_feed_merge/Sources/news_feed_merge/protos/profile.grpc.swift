@@ -27,7 +27,7 @@ import SwiftProtobuf
 
 internal protocol Foobar_Profile_ProfileServiceget_userCall: ClientCallUnary {}
 
-fileprivate final class Foobar_Profile_ProfileServiceget_userCallBase: ClientCallUnaryBase<Foobar_User_User, Foobar_User_UserInfo>, Foobar_Profile_ProfileServiceget_userCall {
+fileprivate final class Foobar_Profile_ProfileServiceget_userCallBase: ClientCallUnaryBase<Foobar_User_User, Foobar_UserSetting_UserInfo>, Foobar_Profile_ProfileServiceget_userCall {
   override class var method: String { return "/foobar.profile.ProfileService/get_user" }
 }
 
@@ -51,10 +51,10 @@ fileprivate final class Foobar_Profile_ProfileServiceget_wallCallBase: ClientCal
 /// Instantiate Foobar_Profile_ProfileServiceServiceClient, then call methods of this protocol to make API calls.
 internal protocol Foobar_Profile_ProfileServiceService: ServiceClient {
   /// Synchronous. Unary.
-  func get_user(_ request: Foobar_User_User, metadata customMetadata: Metadata) throws -> Foobar_User_UserInfo
+  func get_user(_ request: Foobar_User_User, metadata customMetadata: Metadata) throws -> Foobar_UserSetting_UserInfo
   /// Asynchronous. Unary.
   @discardableResult
-  func get_user(_ request: Foobar_User_User, metadata customMetadata: Metadata, completion: @escaping (Foobar_User_UserInfo?, CallResult) -> Void) throws -> Foobar_Profile_ProfileServiceget_userCall
+  func get_user(_ request: Foobar_User_User, metadata customMetadata: Metadata, completion: @escaping (Foobar_UserSetting_UserInfo?, CallResult) -> Void) throws -> Foobar_Profile_ProfileServiceget_userCall
 
   /// Asynchronous. Server-streaming.
   /// Send the initial message.
@@ -65,12 +65,12 @@ internal protocol Foobar_Profile_ProfileServiceService: ServiceClient {
 
 internal extension Foobar_Profile_ProfileServiceService {
   /// Synchronous. Unary.
-  func get_user(_ request: Foobar_User_User) throws -> Foobar_User_UserInfo {
+  func get_user(_ request: Foobar_User_User) throws -> Foobar_UserSetting_UserInfo {
     return try self.get_user(request, metadata: self.metadata)
   }
   /// Asynchronous. Unary.
   @discardableResult
-  func get_user(_ request: Foobar_User_User, completion: @escaping (Foobar_User_UserInfo?, CallResult) -> Void) throws -> Foobar_Profile_ProfileServiceget_userCall {
+  func get_user(_ request: Foobar_User_User, completion: @escaping (Foobar_UserSetting_UserInfo?, CallResult) -> Void) throws -> Foobar_Profile_ProfileServiceget_userCall {
     return try self.get_user(request, metadata: self.metadata, completion: completion)
   }
 
@@ -83,13 +83,13 @@ internal extension Foobar_Profile_ProfileServiceService {
 
 internal final class Foobar_Profile_ProfileServiceServiceClient: ServiceClientBase, Foobar_Profile_ProfileServiceService {
   /// Synchronous. Unary.
-  internal func get_user(_ request: Foobar_User_User, metadata customMetadata: Metadata) throws -> Foobar_User_UserInfo {
+  internal func get_user(_ request: Foobar_User_User, metadata customMetadata: Metadata) throws -> Foobar_UserSetting_UserInfo {
     return try Foobar_Profile_ProfileServiceget_userCallBase(channel)
       .run(request: request, metadata: customMetadata)
   }
   /// Asynchronous. Unary.
   @discardableResult
-  internal func get_user(_ request: Foobar_User_User, metadata customMetadata: Metadata, completion: @escaping (Foobar_User_UserInfo?, CallResult) -> Void) throws -> Foobar_Profile_ProfileServiceget_userCall {
+  internal func get_user(_ request: Foobar_User_User, metadata customMetadata: Metadata, completion: @escaping (Foobar_UserSetting_UserInfo?, CallResult) -> Void) throws -> Foobar_Profile_ProfileServiceget_userCall {
     return try Foobar_Profile_ProfileServiceget_userCallBase(channel)
       .start(request: request, metadata: customMetadata, completion: completion)
   }
@@ -108,7 +108,7 @@ internal final class Foobar_Profile_ProfileServiceServiceClient: ServiceClientBa
 /// If one of the methods returning `ServerStatus?` returns nil,
 /// it is expected that you have already returned a status to the client by means of `session.close`.
 internal protocol Foobar_Profile_ProfileServiceProvider: ServiceProvider {
-  func get_user(request: Foobar_User_User, session: Foobar_Profile_ProfileServiceget_userSession) throws -> Foobar_User_UserInfo
+  func get_user(request: Foobar_User_User, session: Foobar_Profile_ProfileServiceget_userSession) throws -> Foobar_UserSetting_UserInfo
   func get_wall(request: Foobar_Wall_WallQuery, session: Foobar_Profile_ProfileServiceget_wallSession) throws -> ServerStatus?
 }
 
@@ -137,7 +137,7 @@ extension Foobar_Profile_ProfileServiceProvider {
 
 internal protocol Foobar_Profile_ProfileServiceget_userSession: ServerSessionUnary {}
 
-fileprivate final class Foobar_Profile_ProfileServiceget_userSessionBase: ServerSessionUnaryBase<Foobar_User_User, Foobar_User_UserInfo>, Foobar_Profile_ProfileServiceget_userSession {}
+fileprivate final class Foobar_Profile_ProfileServiceget_userSessionBase: ServerSessionUnaryBase<Foobar_User_User, Foobar_UserSetting_UserInfo>, Foobar_Profile_ProfileServiceget_userSession {}
 
 internal protocol Foobar_Profile_ProfileServiceget_wallSession: ServerSessionServerStreaming {
   /// Send a message to the stream. Nonblocking.
