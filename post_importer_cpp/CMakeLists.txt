@@ -11,11 +11,19 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/build/cmake/")
 set(PROTOBUF_IMPORT_DIRS "${CMAKE_SOURCE_DIR}/")
 
-#include(build/cmake/redox.cmake)
+SET(BUILD_SHARED_LIBS OFF)
+
 add_definitions(-DNDEBUG)
 
 find_package (Protobuf REQUIRED)
 find_package (GRPC REQUIRED)
+FIND_LIBRARY(Redox REQUIRED)
+FIND_LIBRARY(ev REQUIRED)
+FIND_LIBRARY(hiredis REQUIRED)
+#FIND_LIBRARY(pb2json REQUIRED)
+
+FIND_PACKAGE(Boost REQUIRED COMPONENTS program_options)
+FIND_PACKAGE(CppKafka REQUIRED)
 
 function(generate_proto FILENAME)
     PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS ${FILENAME})
@@ -39,13 +47,10 @@ add_executable(post_importer
         include/main.cpp
         include/redox_helper.h)
 
-FIND_LIBRARY(Redox REQUIRED)
-#find_library(hiredis REQUIRED)
-#find_library(libev REQUIRED)
-#FIND_LIBRARY(pb2json REQUIRED)
+if (BUILD_STATIC_LIBS)
+    link_libraries("-static")
+    target_link_libraries(post_importer PUBLIC "-static")
+endif()
 
-FIND_PACKAGE(Boost REQUIRED COMPONENTS program_options)
-FIND_PACKAGE(CppKafka REQUIRED)
-
-target_link_libraries(post_importer ${PROTOBUF_LIBRARIES} ${GRPC_LIBRARIES} CppKafka::cppkafka redox)
+target_link_libraries(post_importer ${PROTOBUF_LIBRARIES} ${GRPC_LIBRARIES} CppKafka::cppkafka ev redox_static hiredis)
 #target_link_libraries(news_feed Protobuf::protolib GRPC::grpc)

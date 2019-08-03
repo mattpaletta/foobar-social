@@ -39,7 +39,8 @@ RUN echo "-- installing grpc" && \
 ###################################
 # Install additional C++ dependencies
 ###################################
-RUN apt-get update && apt-get install -y libhiredis-dev libev-dev zlib1g-dev libssl-dev libsasl2-dev libzstd-dev libboost-all-dev
+#RUN apt-get update && apt-get install -y libhiredis-dev libev-dev zlib1g-dev libssl-dev libsasl2-dev libzstd-dev libboost-all-dev
+RUN apt-get update && apt-get install -y libhiredis-dev zlib1g-dev libssl-dev libsasl2-dev libzstd-dev libboost-all-dev
 
 ################################
 # Update CMake
@@ -51,6 +52,15 @@ RUN mkdir /opt/cmake
 RUN sh /cmake-${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}-Linux-x86_64.sh --prefix=/opt/cmake --skip-license
 RUN ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake
 RUN cmake --version
+
+###################################
+# Install LibEV Manually
+###################################
+RUN git clone https://github.com/LuaDist/libev.git && \
+    mkdir -p libev/build && \
+    cd libev/build && \
+    cmake .. && \
+    make install
 
 ###################################
 # Install LibRDKafka (cppkafka deps)

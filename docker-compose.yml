@@ -119,6 +119,19 @@ services:
     ports:
       - 2884
 
+  # Testing service
+  post_importer_cpp:
+    build:
+      context: post_importer_cpp
+    tty: true
+    links:
+      - post_importer_redis
+      - post_importer_kafka:kafka
+    ports:
+      - 9000
+    environment:
+      - IMPORT_QUEUE=post_import
+      - POST_INCREMENT_KEY=global_post_id
   post_importer:
     build:
       context: post_importer
