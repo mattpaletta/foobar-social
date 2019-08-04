@@ -3,6 +3,7 @@ from concurrent import futures
 from time import sleep
 import grpc
 import re
+from pynotstdlib.logging import default_logging
 
 from user_setting_pb2_grpc import add_UserSettingServiceServicer_to_server
 from user_setting_pb2_grpc import UserSettingServiceServicer
@@ -58,14 +59,15 @@ class UserSettingService(UserSettingServiceServicer):
         validate = re.compile("[A-Za-z0-9]+$")
         valid_user = validate.match(request_username)
         if not valid_user:
+            logging.debug("Invalid username")
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details('Invalid Username')
             return Auth()
 
-        print("Getting connection")
+        logging.debug("Getting connection")
         postgres_pool_conn = self.postgres_pool.getconn()
         if postgres_pool_conn:
-            print("Got connection")
+            logging.debug("Got connection")
 
             with postgres_pool_conn.cursor() as ps_cursor:
                 # Retrieve password for the provided username from user_setting
@@ -75,10 +77,11 @@ class UserSettingService(UserSettingServiceServicer):
                 rows = ps_cursor.fetchall()
             self.postgres_pool.putconn(postgres_pool_conn)
 
-            print("Got: {0} rows".format(len(rows)))
+            logging.debug("Got: {0} rows".format(len(rows)))
 
             # Should have one and only one password per username.
             if len(rows) != 1:
+                logging.warning("Invalid number of rows")
                 context.set_code(grpc.StatusCode.INTERNAL)
                 context.set_details('User Setting DB Error')
                 return Auth()
@@ -87,6 +90,7 @@ class UserSettingService(UserSettingServiceServicer):
             retrieved_pass = first_row[0]
             return Auth(username = request_username, password = retrieved_pass)
         else:
+            logging.error("Failed to connect to DB pool")
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details('Failure to connect to DB pool.')
             self.postgres_pool.putconn(postgres_pool_conn)
@@ -104,7 +108,7 @@ class UserSettingService(UserSettingServiceServicer):
 
 
 if __name__ == "__main__":
-    logging.getLogger().setLevel(logging.INFO)
+    default_logging(logging.DEBUG)
     auth_port = 2884
     server = grpc.server(futures.ThreadPoolExecutor(max_workers = 4))
     add_UserSettingServiceServicer_to_server(servicer = UserSettingService(), server = server)

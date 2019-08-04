@@ -1,6 +1,8 @@
+import logging
 from concurrent import futures
 from time import sleep
 import grpc
+from pynotstdlib.logging import default_logging
 
 from auth_pb2 import Token, Auth
 from auth_pb2_grpc import add_AuthServiceServicer_to_server, AuthServiceServicer
@@ -34,28 +36,31 @@ class AuthsService(AuthServiceServicer):
         user = request.username
         passw = request.password
         if user is None or passw is None:
+            logging.debug('Username or Password cannot be empty')
             context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
             context.set_details('Username or Password cannot be empty')
             return Token(username = user)
 
-        print("Checking auth")
-        correct_auth_future = self.settings_stub.get_password.future(request)
-        correct_auth = correct_auth_future.result()
+        logging.debug("Checking auth")
+        correct_auth = self.settings_stub.get_password(request)
         correct_pass = correct_auth.password
 
         if passw != correct_pass:
+            logging.debug("Invalid auth")
             return Token(username = user, token = "")
 
         # Can't mutate the request, so we create a new token
+        logging.debug("Returning token stub")
         return self.token_stub.create_token.future(Token(username = user)).result()
 
 
 if __name__ == "__main__":
+    default_logging(logging.DEBUG)
     auth_port = 2884
     server = grpc.server(futures.ThreadPoolExecutor(max_workers = 4))
     add_AuthServiceServicer_to_server(servicer = AuthsService(), server = server)
     server.add_insecure_port('[::]:{0}'.format(auth_port))
-    print("Starting Auth Server")
+    logging.info("Starting Auth Server")
     server.start()
     while True:
         sleep(1000)

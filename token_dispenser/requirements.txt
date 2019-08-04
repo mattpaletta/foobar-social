@@ -2,3 +2,4 @@ redis
 grpcio-tools
 grpcio
 mypy-protobuf
+git+git://github.com/mattpaletta/pynotstdlib.git

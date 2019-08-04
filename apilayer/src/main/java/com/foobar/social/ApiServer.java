@@ -20,6 +20,7 @@ import io.grpc.netty.NettyServerBuilder;
 import io.grpc.stub.StreamObserver;
 import io.prometheus.client.Histogram;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
@@ -175,17 +176,22 @@ public class ApiServer {
             Token token;
             logger.info("Logging in");
             try {
-                token = authStub.checkAuth(request).get(100, TimeUnit.MILLISECONDS);
+                token = authStub.checkAuth(request).get(300, TimeUnit.MILLISECONDS);
             } catch (StatusRuntimeException e) {
                 logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
+                System.out.println(Arrays.toString(e.getStackTrace()));
                 responseObserver.onError(e);
 //                t.close();
                 return;
             } catch (TimeoutException e) {
+                logger.log(Level.WARNING, "Timeout Occured: {0}", e.getMessage());
+                System.out.println(Arrays.toString(e.getStackTrace()));
                 responseObserver.onError(new RuntimeException("Timeout Occured"));
 //                t.close();
                 return;
             }  catch (InterruptedException|java.util.concurrent.ExecutionException e) {
+                logger.log(Level.WARNING, "Interrupted Exeuction: {0}", e.getMessage());
+                System.out.println(Arrays.toString(e.getStackTrace()));
                 responseObserver.onError(e);
 //                t.close();
                 return;
