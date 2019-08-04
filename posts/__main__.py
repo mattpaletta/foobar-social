@@ -122,15 +122,21 @@ class PostsService(PostServiceServicer):
         postgres_pool_conn = self.postgres_pool.getconn()
         if postgres_pool_conn:
             ps_cursor = postgres_pool_conn.cursor()
-            ps_cursor.execute("""INSERT INTO posts (post_id, username, msg, post_date, lat, long) 
-                                 VALUES ({0}, '{1}', '{2}', to_timestamp({3}), {4}, {5});"""
-                                .format(request.id,
-                                        request_username,
-                                        msg,
-                                        request.datetime,
-                                        request.loc.lat,
-                                        request.loc.long))
-            postgres_pool_conn.commit()
+            try:
+                ps_cursor.execute("""INSERT INTO posts (post_id, username, msg, post_date, lat, long) 
+                                     VALUES ({0}, '{1}', '{2}', to_timestamp({3}), {4}, {5});"""
+                                    .format(request.id,
+                                            request_username,
+                                            msg,
+                                            request.datetime,
+                                            request.loc.lat,
+                                            request.loc.long))
+                postgres_pool_conn.commit()
+            except Exception as e:
+                logging.error("Failed to insert post: ", e)
+                context.set_code(grpc.StatusCode.ALREADY_EXISTS)
+                context.set_details(e)
+
             ps_cursor.close()
             self.postgres_pool.putconn(postgres_pool_conn)
             return Empty()

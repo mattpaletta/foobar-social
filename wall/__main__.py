@@ -81,8 +81,11 @@ class WallService(WallServiceServicer):
             print("Got rows: ", len(posts))
 
             for post in posts:
-                post_filled = self.posts_stub.fetch(Post(id = post[0], username = request_user))
-                yield post_filled
+                try:
+                    post_filled = self.posts_stub.fetch(Post(id = post[0], username = request_user))
+                    yield post_filled
+                except Exception as e:
+                    logging.error("Failed to fetch post: ", e)
 
             ps_cursor.close()
             self.postgres_pool.putconn(postgres_pool_conn)

@@ -1,3 +1,4 @@
+import functools
 import logging
 from multiprocessing.dummy import Pool
 from time import time, sleep
@@ -71,21 +72,8 @@ def print_time_report(time: float, num: int):
                                                                humanfriendly.format_number(num / time, 3)))
 
 
-def submit_posts(sentence: str):
-    # logging.getLogger().setLevel(logging.INFO)
-
-    apilayer_channel = grpc.insecure_channel(apilayer_hostname)
-    api = ApiLayerServiceStub(channel = apilayer_channel)
-
-    grpc.channel_ready_future(apilayer_channel).result()
-
-    # gen.init_sentence_cache()
-
-    token = autologin()
-    while token is None or token.username is None or token.username == "":
-        token = autologin()
-
-    # print("Sending post")
+def submit_posts(api: ApiLayerServiceStub, sentence: str):
+    print("Sending post")
     f = post(post = Post(username = token.username, msg = sentence), api = api)
 
     try:
@@ -172,11 +160,10 @@ if __name__ == "__main__":
                 else:
                     num_posts = int(num_posts)
 
-                    # num_threads = 20
-                    # pool = Pool(processes = num_threads)
+                    num_threads = int(input("# threads: "))
+                    pool = Pool(processes = num_threads)
 
                     pieces = []
-
                     gen.init_sentence_cache()
 
                     for i in range(num_posts):
@@ -185,11 +172,8 @@ if __name__ == "__main__":
 
                     start_time = time()
 
-                    # pool.map(submit_posts, iterable = pieces, chunksize = 10)
-                    # pool.close()
-                    for sen in pieces:
-                        p = Post(msg = sen, username = token.username)
-                        post(p, api).result()
+                    pool.map(functools.partial(submit_posts, api), iterable = pieces, chunksize = 10)
+                    pool.close()
 
                     end_time = time()
                     if int(num_posts) >= 10:
