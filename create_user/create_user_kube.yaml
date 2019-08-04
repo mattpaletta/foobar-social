@@ -26,8 +26,8 @@ spec:
     spec:
       containers:
       - name: createuser
-        image: foobar-social_create_user:latest
-        imagePullPolicy: Never
+        image: mattpaletta/foobar-social_create_user:latest
+        imagePullPolicy: Always
         tty: True
         ports:
           - containerPort: 4477

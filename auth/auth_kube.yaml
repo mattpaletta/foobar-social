@@ -14,8 +14,8 @@ spec:
     spec:
       containers:
         - name: auth
-          image: foobar-social_auth:latest
-          imagePullPolicy: Never
+          image: mattpaletta/foobar-social_auth:latest
+          imagePullPolicy: Always
           tty: True
           ports:
             - containerPort: 2884

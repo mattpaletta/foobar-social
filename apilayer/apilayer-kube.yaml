@@ -13,9 +13,9 @@ spec:
     spec:
       containers:
         - name: apilayer
-          image: foobar-social_apilayer:latest
-          imagePullPolicy: Never
-          tty:True
+          image: mattpaletta/foobar-social_apilayer:latest
+          imagePullPolicy: Always
+          tty: True
           ports:
             - containerPort: 50051
           resources:

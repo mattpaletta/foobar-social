@@ -26,8 +26,8 @@ spec:
     spec:
       containers:
         - name: profile
-          image: foobar-social_profile:latest
-          imagePullPolicy: Never
+          image: mattpaletta/foobar-social_profile:latest
+          imagePullPolicy: Always
           tty: True
           ports:
             - containerPort: 2885

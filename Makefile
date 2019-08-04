@@ -119,6 +119,7 @@ posts: $(posts)
 profile := $(call get_outputs,profile,profile)
 $(profile):
 	$(call generate_protos_py_unary,profile)
+	$(call generate_protos_py,user_setting,profile)
 profile: $(profile)
 
 token := $(call get_outputs,token,token_dispenser)

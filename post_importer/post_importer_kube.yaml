@@ -13,8 +13,8 @@ spec:
     spec:
       containers:
         - name: postimporter
-          image: foobar-social_post_importer:latest
-          imagePullPolicy: Never
+          image: mattpaletta/foobar-social_post_importer:latest
+          imagePullPolicy: Always
           tty: True
           env:
             - name: IMPORT_QUEUE

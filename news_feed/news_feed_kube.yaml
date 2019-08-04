@@ -26,8 +26,8 @@ spec:
     spec:
       containers:
         - name: news-feed
-          image: foobar-social_news_feed:latest
-          imagePullPolicy: Never
+          image: mattpaletta/foobar-social_news_feed:latest
+          imagePullPolicy: Always
           tty: True
           ports:
             - containerPort: 8080

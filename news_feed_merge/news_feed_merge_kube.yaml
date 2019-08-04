@@ -13,8 +13,8 @@ spec:
     spec:
       containers:
         - name: newsfeedmerge
-          image: foobar-social_news_feed_merge:latest
-          imagePullPolicy: Never
+          image: mattpaletta/foobar-social_news_feed_merge:latest
+          imagePullPolicy: Always
           tty: True
           env:
             - name: IMPORT_QUEUE

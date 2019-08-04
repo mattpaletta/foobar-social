@@ -26,8 +26,8 @@ spec:
     spec:
       containers:
         - name: friends
-          image: foobar-social_friends:latest
-          imagePullPolicy: Never
+          image: mattpaletta/foobar-social_friends:latest
+          imagePullPolicy: Always
           tty: True
           ports:
             - containerPort: 2885

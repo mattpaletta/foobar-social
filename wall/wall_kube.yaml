@@ -26,8 +26,8 @@ spec:
     spec:
       containers:
         - name: wall
-          image: foobar-social_wall:latest
-          imagePullPolicy: Never
+          image: mattpaletta/foobar-social_wall:latest
+          imagePullPolicy: Always
           tty: True
           ports:
             - containerPort: 4698
@@ -68,8 +68,8 @@ spec:
     spec:
       containers:
         - name: walldb
-          image: foobar-social_wall_postgres:latest
-          imagePullPolicy: Never
+          image: mattpaletta/foobar-social_wall_postgres:latest
+          imagePullPolicy: Always
           tty: True
           ports:
             - containerPort: 5432

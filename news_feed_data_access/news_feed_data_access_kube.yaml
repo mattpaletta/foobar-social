@@ -26,8 +26,8 @@ spec:
     spec:
       containers:
         - name: newsfeeddataaccess
-          image: foobar-social_news_feed_data_access:latest
-          imagePullPolicy: Never
+          image: mattpaletta/foobar-social_news_feed_data_access:latest
+          imagePullPolicy: Always
           tty: True
           ports:
             - containerPort: 9000
@@ -68,8 +68,8 @@ spec:
     spec:
       containers:
         - name: newsfeeddataaccesspostgres
-          image: foobar-social_news_feed_data_access_postgres:latest
-          imagePullPolicy: Never
+          image: mattpaletta/foobar-social_news_feed_data_access_postgres:latest
+          imagePullPolicy: Always
           tty: True
           ports:
             - containerPort: 5432

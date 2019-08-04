@@ -26,8 +26,8 @@ spec:
     spec:
       containers:
         - name: users
-          image: foobar-social_users:latest
-          imagePullPolicy: Never
+          image: mattpaletta/foobar-social_users:latest
+          imagePullPolicy: Always
           tty: True
           ports:
             - containerPort: 2884
@@ -68,8 +68,8 @@ spec:
     spec:
       containers:
         - name: usersdb
-          image: foobar-social_users_db:latest
-          imagePullPolicy: Never
+          image: mattpaletta/foobar-social_users_db:latest
+          imagePullPolicy: Always
           tty: True
           ports:
             - containerPort: 5432

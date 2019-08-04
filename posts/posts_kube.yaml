@@ -26,8 +26,8 @@ spec:
     spec:
       containers:
         - name: posts
-          image: foobar-social_posts:latest
-          imagePullPolicy: Never
+          image: mattpaletta/foobar-social_posts:latest
+          imagePullPolicy: Always
           tty: True
           ports:
             - containerPort: 2885
@@ -68,8 +68,8 @@ spec:
     spec:
       containers:
         - name: postsdb
-          image: foobar-social_posts_postgres:latest
-          imagePullPolicy: Never
+          image: mattpaletta/foobar-social_posts_postgres:latest
+          imagePullPolicy: Always
           tty: True
           ports:
             - containerPort: 5432

@@ -11,8 +11,8 @@ spec:
     spec:
       containers:
         - name: tokendispenser
-          image: foobar-social_token_dispenser:latest
-          imagePullPolicy: Never
+          image: mattpaletta/foobar-social_token_dispenser:latest
+          imagePullPolicy: Always
           tty: True
           ports:
             - containerPort: 6969

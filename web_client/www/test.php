@@ -11,7 +11,7 @@ require 'src/Foobar/Auth/Token.php';
 require 'src/Foobar/Posts/Post.php';
 require 'src/Foobar/Wall/WallQuery.php';
 
-$client = new Foobar\ApiLayer\ApilayerServiceClient('apilayer:50051', ['credentials' => Grpc\ChannelCredentials::createInsecure(),]);
+$client = new Foobar\ApiLayer\ApilayerServiceClient('api-layer:50051', ['credentials' => Grpc\ChannelCredentials::createInsecure(),]);
 
 $auth_obj = new Foobar\Auth\Auth();
 $auth_obj->setUsername("fake");

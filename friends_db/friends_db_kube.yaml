@@ -26,8 +26,8 @@ spec:
     spec:
       containers:
         - name: friends-db
-          image: foobar-social_friends_postgres:latest
-          imagePullPolicy: Never
+          image: mattpaletta/foobar-social_friends_postgres:latest
+          imagePullPolicy: Always
           tty: True
           ports:
             - containerPort: 5432

@@ -26,8 +26,8 @@ spec:
     spec:
       containers:
         - name: webclient
-          image: foobar-social_web_client:latest
-          imagePullPolicy: Never
+          image: mattpaletta/foobar-social_web_client:latest
+          imagePullPolicy: Always
           tty: True
           ports:
             - containerPort: 80
