@@ -172,8 +172,8 @@ if __name__ == "__main__":
                 else:
                     num_posts = int(num_posts)
 
-                    num_threads = 20
-                    pool = Pool(processes = num_threads)
+                    # num_threads = 20
+                    # pool = Pool(processes = num_threads)
 
                     pieces = []
 
@@ -185,8 +185,11 @@ if __name__ == "__main__":
 
                     start_time = time()
 
-                    pool.map(submit_posts, iterable = pieces, chunksize = 10)
-                    pool.close()
+                    # pool.map(submit_posts, iterable = pieces, chunksize = 10)
+                    # pool.close()
+                    for sen in pieces:
+                        p = Post(msg = sen, username = token.username)
+                        post(p, api).result()
 
                     end_time = time()
                     if int(num_posts) >= 10:
