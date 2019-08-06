@@ -15,7 +15,7 @@
 
 class NewsFeedService final : public foobar::news_feed::NewsFeedService::Service {
 public:
-    NewsFeedService() : nf_client(grpc::CreateChannel("news_feed_data_access:9000", grpc::InsecureChannelCredentials())),
+    NewsFeedService() : nf_client(grpc::CreateChannel("news-feed-data-access:9000", grpc::InsecureChannelCredentials())),
                         posts_client(grpc::CreateChannel("posts:9000", grpc::InsecureChannelCredentials())) {
     }
 

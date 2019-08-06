@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.7.2)
 cmake_policy(SET CMP0042 NEW)
-project (post_importer CXX)
+project (post_importer LANGUAGES CXX)
 if (APPLE)
     set(CMAKE_MACOSX_RPATH ON)
 endif ()
@@ -12,6 +12,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/build/cmake/")
 set(PROTOBUF_IMPORT_DIRS "${CMAKE_SOURCE_DIR}/")
 
 SET(BUILD_SHARED_LIBS OFF)
+
+add_subdirectory(include/pbjson)
 
 add_definitions(-DNDEBUG)
 
@@ -52,5 +54,5 @@ if (BUILD_STATIC_LIBS)
     target_link_libraries(post_importer PUBLIC "-static")
 endif()
 
-target_link_libraries(post_importer ${PROTOBUF_LIBRARIES} ${GRPC_LIBRARIES} CppKafka::cppkafka ev redox_static hiredis)
+target_link_libraries(post_importer ${PROTOBUF_LIBRARIES} ${GRPC_LIBRARIES} pbjson CppKafka::cppkafka ev redox_static hiredis)
 #target_link_libraries(news_feed Protobuf::protolib GRPC::grpc)

@@ -7,7 +7,7 @@ services:
     links:
       - apilayer
       - auth
-      - post_importer:postImporter
+      - post_importer:post-importer
  
   web_client:
     build:
@@ -57,10 +57,10 @@ services:
     links:
       - auth
       - token_dispenser:token
-      - post_importer:postImporter
-      - news_feed:newsFeed
+      - post_importer:post-importer
+      - news_feed:news-feed
       - wall
-      - create_user:createUser
+      - create_user:create-user
     expose:
       - 50051
 
@@ -81,7 +81,10 @@ services:
       context: news_feed
     tty: true
     ports:
-      - 2884
+      - 8080
+    links:
+      - news_feed_data_access:news-feed-data-access
+      - posts
 
   posts:
     build:
@@ -89,12 +92,13 @@ services:
     tty: true
     links:
       - posts_postgres:postsdb
-      - posts_redis:postsCache
+      - posts_redis:posts-cache
     ports:
       - 2885
   posts_postgres:
     build:
       context: posts_db
+# TODO: Integrate redis to posts
   posts_redis:
     image: redis:alpine
 
@@ -103,9 +107,10 @@ services:
       context: profile
     tty: true
     links:
-      - profile_redis:profileCache
+      - profile_redis:profile-cache
     ports:
       - 2886
+# TODO: Integrate redis to profile
   profile_redis:
     image: redis:alpine
 
@@ -114,31 +119,31 @@ services:
       context: auth
     tty: true
     links:
-      - token_dispenser:tokendispenser
-      - user_settings:usersettings
+      - token_dispenser:token-dispenser
+      - user_settings:user-setting
     ports:
       - 2884
 
   # Testing service
-  post_importer_cpp:
+#  post_importer_cpp:
+#    build:
+#      context: post_importer_cpp
+#    tty: true
+#    links:
+#      - post_importer_redis
+#      - post_importer_kafka:kafka
+#    ports:
+#      - 9000
+#    environment:
+#      - IMPORT_QUEUE=post_import
+#      - POST_INCREMENT_KEY=global_post_id
+  post_importer:
     build:
       context: post_importer_cpp
     tty: true
     links:
-      - post_importer_redis
-      - post_importer_kafka:kafka
-    ports:
-      - 9000
-    environment:
-      - IMPORT_QUEUE=post_import
-      - POST_INCREMENT_KEY=global_post_id
-  post_importer:
-    build:
-      context: post_importer
-    tty: true
-    links:
-      - post_importer_redis
-      - post_importer_kafka:kafka
+      - post_importer_redis:post-importer-redis
+#      - post_importer_kafka:post-importer-kafka
     ports:
       - 9000
     environment:
@@ -172,7 +177,7 @@ services:
       context: token_dispenser
     tty: true
     links:
-      - token_dispenser_redis
+      - token_dispenser_redis:token-dispenser-redis
   token_dispenser_redis:
     image: redis:alpine
 
@@ -181,9 +186,9 @@ services:
       context: news_feed_merge
     tty: true
     links:
-      - news_feed_data_access:newsFeedDataAccess
+      - news_feed_data_access:news-feed-data-access
       - friends
-      - post_importer_redis
+      - post_importer_redis:post-importer-redis
       - wall
       - posts
     environment:
@@ -194,7 +199,7 @@ services:
       context: wall
     tty: true
     links:
-      - wall_redis:wallCache
+      - wall_redis:wall-cache
       - wall_postgres:walldb
       - posts
     ports:
@@ -210,8 +215,8 @@ services:
       context: news_feed_data_access
     tty: true
     links:
-      - news_feed_data_access_redis
-      - news_feed_data_access_postgres
+      - news_feed_data_access_redis:news-feed-data-access-redis
+      - news_feed_data_access_postgres:news-feed-data-access-postgres
   news_feed_data_access_redis:
     image: redis:alpine
   news_feed_data_access_postgres:

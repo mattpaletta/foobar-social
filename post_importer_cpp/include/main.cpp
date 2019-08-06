@@ -6,15 +6,15 @@
 #include <iostream>
 #include <memory>
 #include <cstdlib>
-
+//#include <pbjson/pbjson.hpp>
 //#include "cppkafka/producer.h"
-
+#include "pbjson/pbjson.hpp"
 #include "post_importer.grpc.pb.h"
 #include "redox_helper.h"
 
 class PostImporterService final : public foobar::post_importer::PostImporterService::Service {
 public:
-    PostImporterService() : rdx("post_importer_redis"),
+    PostImporterService() : rdx("post-importer-redis"),
             IMPORT_QUEUE(std::getenv("IMPORT_QUEUE")),
             POST_INCREMENT_KEY(std::getenv("POST_INCREMENT_KEY")) {
         if (POST_INCREMENT_KEY == nullptr || IMPORT_QUEUE == nullptr) {
@@ -54,7 +54,10 @@ public:
 
         // TODO: Turn post into json
         // TODO: Push json-post to redis
+        std::string str;
+        pbjson::pb2json(&post, str);
 
+        this->rdx.lpush(this->IMPORT_QUEUE, str);
 
         return grpc::Status::OK;
     }
@@ -74,7 +77,7 @@ private:
 };
 
 int main(int argc, char* argv[]) {
-    std::string server_address("0.0.0.0:8080");
+    std::string server_address("0.0.0.0:9000");
     PostImporterService post_importer_service;
 
     grpc::ServerBuilder builder;

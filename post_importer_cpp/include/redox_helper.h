@@ -7,6 +7,9 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <chrono>
+#include <thread>
+#include <cmath>
 
 #include "redox.hpp"
 
@@ -20,7 +23,16 @@ public:
         // Better performance, higher CPU
         this->rdx.noWait(true);
 
-        if (this->rdx.connect(host, port)) {
+        int maxRetries = 10;
+
+        bool did_connect = false;
+        for (int curRetry = 0; curRetry < maxRetries && !did_connect; ++curRetry) {
+            did_connect = this->rdx.connect(host, port);
+            // Exponential backoff between retries
+            std::this_thread::sleep_for(std::chrono::seconds(std::size_t(std::pow<long double>(2, curRetry))));
+        }
+        // If we went through all the retries, and we still haven't connected, throw an error.
+        if (!did_connect) {
             throw std::runtime_error("Unable to connect to redis host");
         }
     }
@@ -57,29 +69,29 @@ public:
         return this->run_wait_cmd({"BRPOPLPUSH", src, dest, std::to_string(timeout)});
     }
 
-    void lpush(const std::string& key, const std::string& value) {
-        auto& cmd = this->rdx.commandSync<std::string>({"LPUSH", key, value});
+    void lpush(const std::string& queue, const std::string& value) {
+        auto& cmd = this->rdx.commandSync<std::string>({"LPUSH", queue, value});
         cmd.free();
     }
 
-    void lpush(const std::string& key, const std::vector<std::string>& values) {
+    void lpush(const std::string& queue, const std::vector<std::string>& values) {
         std::vector<std::string> vec;
         vec.emplace_back("LPUSH");
-        vec.push_back(key);
+        vec.push_back(queue);
         vec.insert(vec.end(), values.begin(), values.end());
         auto& cmd = this->rdx.commandSync<std::string>(std::move(vec));
         cmd.free();
     }
 
-    void rpush(const std::string& key, const std::string& value) {
-        auto& cmd = this->rdx.commandSync<std::string>({"RPUSH", key, value});
+    void rpush(const std::string& queue, const std::string& value) {
+        auto& cmd = this->rdx.commandSync<std::string>({"RPUSH", queue, value});
         cmd.free();
     }
 
-    void rpush(const std::string& key, const std::vector<std::string>& values) {
+    void rpush(const std::string& queue, const std::vector<std::string>& values) {
         std::vector<std::string> vec;
         vec.emplace_back("RPUSH");
-        vec.push_back(key);
+        vec.push_back(queue);
         vec.insert(vec.end(), values.begin(), values.end());
         auto& cmd = this->rdx.commandSync<std::string>(std::move(vec));
         cmd.free();
