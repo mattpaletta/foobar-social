@@ -3,7 +3,7 @@ import logging
 from multiprocessing.dummy import Pool
 from time import time, sleep
 from typing import List
-
+import sys
 from essential_generators import DocumentGenerator
 import grpc
 from prettytable import PrettyTable
@@ -15,6 +15,8 @@ from posts_pb2 import Post
 from wall_pb2 import WallQuery
 
 apilayer_hostname = "localhost:30727"
+if len(sys.argv) > 0 and sys.argv[1] == "client":
+    apilayer_hostname = "apilayer:50051"
 
 
 def login(username: str, password: str, api: ApiLayerServiceStub) -> Token:
@@ -73,7 +75,6 @@ def print_time_report(time: float, num: int):
 
 
 def submit_posts(api: ApiLayerServiceStub, sentence: str):
-    print("Sending post")
     f = post(post = Post(username = token.username, msg = sentence), api = api)
 
     try:

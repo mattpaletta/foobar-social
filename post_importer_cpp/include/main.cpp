@@ -27,7 +27,7 @@ public:
 
         auto has_msg = !request->msg().empty();
         auto has_username = !request->username().empty();
-        auto has_location = request->has_loc() && PostImporterService::is_valid_loc(request->loc());
+        auto has_location = !request->has_loc() || PostImporterService::is_valid_loc(request->loc());
 
         if (!has_msg) {
             return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "Missing message");

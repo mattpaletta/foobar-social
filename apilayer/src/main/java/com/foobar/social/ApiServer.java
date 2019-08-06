@@ -214,7 +214,7 @@ public class ApiServer {
             Token token = Token.newBuilder().setUsername(request.getUsername()).build();
             System.out.println("Getting token");
             try {
-                token = tokenStub.checkToken(token).get(100, TimeUnit.MILLISECONDS);
+                token = tokenStub.checkToken(token).get(300, TimeUnit.MILLISECONDS);
             } catch (StatusRuntimeException e) {
                 logger.log(Level.WARNING, "Check Token RPC failed: {0}", e.getStatus());
                 responseObserver.onError(e);

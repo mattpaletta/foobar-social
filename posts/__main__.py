@@ -16,7 +16,7 @@ from posts_pb2_grpc import add_PostServiceServicer_to_server, PostServiceService
 class PostsService(PostServiceServicer):
     
     def __init__(self) -> None:
-        # TODO: Handle hosts through Docker or JSON
+        # TODO: https://stackoverflow.com/questions/48532301/python-postgres-psycopg2-threadedconnectionpool-exhausted
         for i in range(10):
             try:
                 # Give the database a change to initialize

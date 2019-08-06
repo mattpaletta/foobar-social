@@ -21,7 +21,7 @@ public:
     Redis(const std::string& host, const int& port = 6379) : rdx() {
         // Does not sleep the event loop
         // Better performance, higher CPU
-        this->rdx.noWait(true);
+        //this->rdx.noWait(true);
 
         int maxRetries = 10;
 

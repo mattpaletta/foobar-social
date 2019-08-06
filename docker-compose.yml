@@ -25,6 +25,7 @@ services:
     tty: true
     links:
       - apilayer
+    command: client
 
   create_user:
     build:
@@ -32,6 +33,7 @@ services:
     tty: true
     links:
       - users
+      - token_dispenser:token-dispenser
     ports:
      - 3001
   
@@ -56,7 +58,7 @@ services:
     tty: true
     links:
       - auth
-      - token_dispenser:token
+      - token_dispenser:token-dispenser
       - post_importer:post-importer
       - news_feed:news-feed
       - wall
@@ -85,6 +87,8 @@ services:
     links:
       - news_feed_data_access:news-feed-data-access
       - posts
+    depends_on:
+      - news_feed_merge
 
   posts:
     build:

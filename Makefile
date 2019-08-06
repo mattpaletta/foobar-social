@@ -63,7 +63,7 @@ client:
 	$(call generate_protos_py,apilayer,client)
 	$(call generate_protos_py,user,client)
 	$(call generate_protos_py,shared,client)
-	docker-compose up --build -d client && docker run -it --rm --net foobar-social_default foobar-social_client:latest
+	docker-compose up --build -d client && docker run -it --rm --net foobar-social_default foobar-social_client:latest client
 
 local_client:
 	docker-compose build client && docker run -it --rm --net host foobar-social_client:latest
