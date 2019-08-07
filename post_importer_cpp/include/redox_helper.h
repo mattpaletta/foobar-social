@@ -49,12 +49,8 @@ public:
         return this->rdx.del(key);
     }
 
-    std::size_t incr(const std::string& key, const std::size_t amount = 1) {
-        const auto& string = this->run_wait_cmd({"INCRBY", key, std::to_string(amount)});
-        std::stringstream sstream(string);
-        std::size_t result;
-        sstream >> result;
-        return result;
+    long long int incr(const std::string& key, const std::size_t amount = 1) {
+        return this->run_wait_cmd<long long int>({"INCRBY", key, std::to_string(amount)});
     }
 
     std::string blpop(const std::string& key, const std::size_t& timeout = 0) {
@@ -66,11 +62,11 @@ public:
     }
 
     std::string brpoplpush(const std::string& src, const std::string& dest, const std::size_t& timeout = 0) {
-        return this->run_wait_cmd({"BRPOPLPUSH", src, dest, std::to_string(timeout)});
+        return this->run_wait_cmd<std::string>({"BRPOPLPUSH", src, dest, std::to_string(timeout)});
     }
 
     void lpush(const std::string& queue, const std::string& value) {
-        auto& cmd = this->rdx.commandSync<std::string>({"LPUSH", queue, value});
+        auto& cmd = this->rdx.commandSync<long long int>({"LPUSH", queue, value});
         cmd.free();
     }
 
@@ -79,12 +75,12 @@ public:
         vec.emplace_back("LPUSH");
         vec.push_back(queue);
         vec.insert(vec.end(), values.begin(), values.end());
-        auto& cmd = this->rdx.commandSync<std::string>(std::move(vec));
+        auto& cmd = this->rdx.commandSync<long long int>(std::move(vec));
         cmd.free();
     }
 
     void rpush(const std::string& queue, const std::string& value) {
-        auto& cmd = this->rdx.commandSync<std::string>({"RPUSH", queue, value});
+        auto& cmd = this->rdx.commandSync<long long int>({"RPUSH", queue, value});
         cmd.free();
     }
 
@@ -93,7 +89,7 @@ public:
         vec.emplace_back("RPUSH");
         vec.push_back(queue);
         vec.insert(vec.end(), values.begin(), values.end());
-        auto& cmd = this->rdx.commandSync<std::string>(std::move(vec));
+        auto& cmd = this->rdx.commandSync<long long int>(std::move(vec));
         cmd.free();
     }
 
@@ -101,11 +97,12 @@ private:
     redox::Redox rdx;
 
     std::string block_helper(const std::string& redis_cmd, const std::string& key, const std::size_t& timeout = 0) {
-        return this->run_wait_cmd({redis_cmd, key, std::to_string(timeout)});
+        return this->run_wait_cmd<std::string>({redis_cmd, key, std::to_string(timeout)});
     }
 
-    std::string run_wait_cmd(const std::vector<std::string>& redis_cmd) {
-        auto& cmd = this->rdx.commandSync<std::string>(redis_cmd);
+    template<class T>
+    T run_wait_cmd(const std::vector<std::string>& redis_cmd) {
+        auto& cmd = this->rdx.commandSync<T>(redis_cmd);
         auto reply = cmd.reply();
         cmd.free();
         return reply;

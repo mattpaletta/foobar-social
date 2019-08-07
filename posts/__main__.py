@@ -7,10 +7,25 @@ from typing import Iterator
 import grpc
 import psycopg2
 import psycopg2.pool
+from threading import Semaphore
 
 from posts_pb2 import Post, PostQuery
 from shared_pb2 import Location, Empty
 from posts_pb2_grpc import add_PostServiceServicer_to_server, PostServiceServicer
+
+
+class ReallyThreadedConnectionPool(psycopg2.pool.ThreadedConnectionPool):
+    def __init__(self, minconn, maxconn, *args, **kwargs):
+        self._semaphore = Semaphore(maxconn)
+        super().__init__(minconn, maxconn, *args, **kwargs)
+
+    def getconn(self, *args, **kwargs):
+        self._semaphore.acquire()
+        return super().getconn(*args, **kwargs)
+
+    def putconn(self, *args, **kwargs):
+        super().putconn(*args, **kwargs)
+        self._semaphore.release()
 
 
 class PostsService(PostServiceServicer):
@@ -20,13 +35,13 @@ class PostsService(PostServiceServicer):
         for i in range(10):
             try:
                 # Give the database a change to initialize
-                self.postgres_pool = psycopg2.pool.ThreadedConnectionPool(minconn = 1,
-                                                                          maxconn = 20,
-                                                                          user = "docker",
-                                                                          password = "password",
-                                                                          host = "postsdb",
-                                                                          port = "5432",
-                                                                          database = "posts")
+                self.postgres_pool = ReallyThreadedConnectionPool(minconn = 1,
+                                                                  maxconn = 20,
+                                                                  user = "docker",
+                                                                  password = "password",
+                                                                  host = "postsdb",
+                                                                  port = "5432",
+                                                                  database = "posts")
                 if self.postgres_pool:
                     break
             except (Exception, psycopg2.DatabaseError) as error:
@@ -64,8 +79,10 @@ class PostsService(PostServiceServicer):
             self.postgres_pool.putconn(postgres_pool_conn)
 
             for row in rows:
-                post_location = Location(float(row.lat), float(row.long))
-                yield Post(username = request_username, msg = row.msg, loc = post_location, datetime = post_date, id = post_id)
+                yield Post(datetime = int(row[0]),
+                           msg = row[1],
+                           username = request.username,
+                           loc = Location(lat = row[2], long = row[3]))
 
     def fetch(self, request: Post, context: grpc.RpcContext = None) -> Post:
         request_username = request.username

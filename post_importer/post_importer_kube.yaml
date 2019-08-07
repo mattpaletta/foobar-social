@@ -25,10 +25,10 @@ spec:
             - containerPort: 9000
           resources:
             requests:
-              cpu: "100m"
+              cpu: "500m"
               memory: "64Mi"
             limits:
-              cpu: "500m"
+              cpu: "800m"
               memory: "128Mi"
 
 # Post Importer Service
@@ -65,10 +65,10 @@ spec:
             - containerPort: 6379
           resources:
             requests:
-              cpu: "100m"
+              cpu: "500m"
               memory: "128Mi"
             limits:
-              cpu: "500m"
+              cpu: "800m"
               memory: "512Mi"
 
 # Post Importer Redis Service

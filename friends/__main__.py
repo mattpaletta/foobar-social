@@ -1,6 +1,7 @@
 import logging
 import re
 from concurrent import futures
+from threading import Semaphore
 from time import sleep
 from typing import Iterator
 import grpc
@@ -12,19 +13,33 @@ from friends_pb2_grpc import add_FriendsServiceServicer_to_server, FriendsServic
 from user_pb2 import User
 
 
+class ReallyThreadedConnectionPool(psycopg2.pool.ThreadedConnectionPool):
+    def __init__(self, minconn, maxconn, *args, **kwargs):
+        self._semaphore = Semaphore(maxconn)
+        super().__init__(minconn, maxconn, *args, **kwargs)
+
+    def getconn(self, *args, **kwargs):
+        self._semaphore.acquire()
+        return super().getconn(*args, **kwargs)
+
+    def putconn(self, *args, **kwargs):
+        super().putconn(*args, **kwargs)
+        self._semaphore.release()
+
+
 class FriendsService(FriendsServiceServicer):
     
     def __init__(self) -> None:
         for i in range(10):
             try:
                 # Give the database a change to initialize
-                self.postgres_pool = psycopg2.pool.ThreadedConnectionPool(minconn = 1,
-                                                                          maxconn = 20,
-                                                                          user = "docker",
-                                                                          password = "password",
-                                                                          host = "friendsdb",
-                                                                          port = "5432",
-                                                                          database = "friends")
+                self.postgres_pool = ReallyThreadedConnectionPool(minconn = 1,
+                                                                  maxconn = 20,
+                                                                  user = "docker",
+                                                                  password = "password",
+                                                                  host = "friendsdb",
+                                                                  port = "5432",
+                                                                  database = "friends")
                 if self.postgres_pool:
                     break
             except (Exception, psycopg2.DatabaseError) as error:
