@@ -14,8 +14,8 @@ from auth_pb2 import Token, Auth
 from posts_pb2 import Post
 from wall_pb2 import WallQuery
 
-apilayer_hostname = "localhost:30727"
-if len(sys.argv) > 0 and sys.argv[1] == "client":
+apilayer_hostname = "35.230.65.235:50051"
+if len(sys.argv) > 1 and sys.argv[1] == "client":
     apilayer_hostname = "apilayer:50051"
 
 

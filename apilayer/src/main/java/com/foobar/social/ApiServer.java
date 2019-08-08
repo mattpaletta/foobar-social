@@ -33,6 +33,7 @@ public class ApiServer {
 
     private static final Logger logger = Logger.getLogger(ApiServer.class.getName());
 
+
     private Server server;
     static private final Histogram requestDuration = Histogram.build()
             .name("request_duration_seconds").help("Request duration in seconds.").register();
@@ -45,32 +46,32 @@ public class ApiServer {
         // TODO: Measure with/without Netty
         // https://groups.google.com/forum/#!topic/grpc-io/2uMTCA2D-x8
 
-//        server = NettyServerBuilder.forPort(port)
-//                .intercept(new ServerInterceptor() {
-//                    @Override
-//                    public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
-//                                                                         ServerCallHandler<ReqT, RespT> next) {
-//                        call.setCompression("gzip");
-//                        return next.startCall(call, headers);
-//                    }
-//                })
-//                .addService(new APILayerImpl())
-//                .executor(ForkJoinPool.commonPool())
-//                .build()
-//                .start();
+       server = NettyServerBuilder.forPort(port)
+               .intercept(new ServerInterceptor() {
+                   @Override
+                   public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
+                                                                        ServerCallHandler<ReqT, RespT> next) {
+                       call.setCompression("gzip");
+                       return next.startCall(call, headers);
+                   }
+               })
+               .addService(new APILayerImpl())
+               .executor(ForkJoinPool.commonPool())
+               .build()
+               .start();
 
-        server = ServerBuilder.forPort(port)
-                .intercept(new ServerInterceptor() {
-                    @Override
-                    public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
-                                                                                 ServerCallHandler<ReqT, RespT> next) {
-                        call.setCompression("gzip");
-                        return next.startCall(call, headers);
-                    }
-                })
-                .addService(new APILayerImpl())
-                .build()
-                .start();
+//         server = ServerBuilder.forPort(port)
+//                 .intercept(new ServerInterceptor() {
+//                     @Override
+//                     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
+//                                                                                  ServerCallHandler<ReqT, RespT> next) {
+//                         call.setCompression("gzip");
+//                         return next.startCall(call, headers);
+//                     }
+//                 })
+//                 .addService(new APILayerImpl())
+//                 .build()
+//                 .start();
 
         logger.info("Server started, listening on " + port);
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -101,6 +102,7 @@ public class ApiServer {
 
     // MARK: Main
     public static void main(String[] args) throws IOException, InterruptedException {
+        logger.setLevel(Level.INFO);
         final ApiServer server = new ApiServer();
         server.start();
         server.blockUntilShutdown();
