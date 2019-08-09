@@ -8,11 +8,8 @@ services:
 python:
   - "3.6"
 
-env:
-#  - AUTH=1
-  - COMPOSE=1
-
 before_install:
+  - docker login -u $DOCKER_USER -p $DOCKER_PASS
   - sudo apt-get update -y && sudo apt-get install -y curl
   - sudo curl -L "https://github.com/docker/compose/releases/download/1.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
   - sudo chmod +x /usr/local/bin/docker-compose
@@ -22,10 +19,9 @@ install:
   - pip install mypy mypy-protobuf grpcio-tools grpcio
 
 script:
-  - make all
-  
+  - make all -B
   # Try and build all the containers in docker-compose
-  - if [ "$COMPOSE" == 1 ]; then docker-compose build; fi
-  
+  - sh deploy_to_docker_hub.sh
+
   # Try and test each microservice
 #  - if [ "$AUTH" == 1 ]; then  mypy auth --strict; fi
