@@ -135,8 +135,10 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
+                <groupId>org.apache.maven</groupId>
+<!--                <artifactId>maven-compiler-plugin</artifactId>-->
+                <artifactId>maven-plugin-api</artifactId>
+                <version>3.6.1</version>
                 <configuration>
                     <source>8</source>
                     <target>8</target>
