@@ -50,7 +50,7 @@ spec:
   ports:
     - port: 5432
   selector:
-    app: posts_db
+    app: postsdb
   type: ClusterIP
 
 # Posts Postgres Deployment
@@ -64,7 +64,7 @@ spec:
   template:
     metadata:
       labels:
-        app: posts_db
+        app: postsdb
     spec:
       containers:
         - name: postsdb
