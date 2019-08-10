@@ -10,7 +10,7 @@ else
   exit $did_build
 fi
 
-containers=(' $(docker images | awk '{print $1;}' | grep ^foobar-social) ')
+containers=( $(docker images | awk '{print $1;}' | grep ^foobar-social) )
 #echo $containers
 
 for img in "${containers[@]}"
