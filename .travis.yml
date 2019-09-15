@@ -21,7 +21,7 @@ install:
 script:
   - make all -B
   # Try and build all the containers in docker-compose
-  - sh deploy_to_docker_hub.sh
+  - bash deploy_to_docker_hub.sh
 
   # Try and test each microservice
 #  - if [ "$AUTH" == 1 ]; then  mypy auth --strict; fi
