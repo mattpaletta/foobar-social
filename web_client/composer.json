@@ -3,6 +3,6 @@
   "description": "web client for Foobar-Social",
   "require": {
     "grpc/grpc": "v1.9.0",
-    "google/protobuf": "v3.8.0"
+    "google/protobuf": "v3.15.0"
   }
 }
